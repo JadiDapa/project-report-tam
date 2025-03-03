@@ -1,39 +1,32 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
-
-import { useColorScheme } from '@/hooks/useColorScheme';
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
+import "@/global.css";
+import { useFonts } from "expo-font";
+import { Slot, SplashScreen, Stack } from "expo-router";
+import { useEffect } from "react";
+import GlobalProvider from "@/lib/global-provider";
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+  const [fontsLoaded] = useFonts({
+    "AirbnbCereal-Light": require("../assets/fonts/AirbnbCereal_Light.otf"),
+    "AirbnbCereal-Regular": require("../assets/fonts/AirbnbCereal_Regular.otf"),
+    "AirbnbCereal-Medium": require("../assets/fonts/AirbnbCereal_Medium.otf"),
+    "AirbnbCereal-Bold": require("../assets/fonts/AirbnbCereal_Bold.otf"),
+    "AirbnbCereal-ExtraBold": require("../assets/fonts/AirbnbCereal_ExtraBold.otf"),
+    "AirbnbCereal-Black": require("../assets/fonts/AirbnbCereal_Black.otf"),
   });
 
   useEffect(() => {
-    if (loaded) {
+    if (fontsLoaded) {
       SplashScreen.hideAsync();
     }
-  }, [loaded]);
+  }, [fontsLoaded]);
 
-  if (!loaded) {
+  if (!fontsLoaded) {
     return null;
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <GlobalProvider>
+      <Slot />
+    </GlobalProvider>
   );
 }
