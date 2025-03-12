@@ -1,5 +1,5 @@
 import { axiosInstance } from "./axiosInstance";
-import { AccountType } from "../types/account";
+import { AccountType, CreateAccountType } from "../types/account";
 
 export async function getAllAccounts() {
   const { data } = await axiosInstance.get<{ data: AccountType[] }>(
@@ -22,12 +22,12 @@ export async function getAccountById(id: string) {
   return data.data;
 }
 
-export async function createAccount(values: AccountType) {
+export async function createAccount(values: CreateAccountType) {
   const { data } = await axiosInstance.post("/accounts", values);
   return data.data;
 }
 
-export async function updateAccount(id: string, values: AccountType) {
+export async function updateAccount(id: string, values: CreateAccountType) {
   const { data } = await axiosInstance.put("/accounts/" + id, values);
   return data.data;
 }

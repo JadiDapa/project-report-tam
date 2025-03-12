@@ -1,5 +1,6 @@
 import { axiosInstance } from "./axiosInstance";
 import { ReportType, CreateReportType } from "../types/report";
+import * as FileSystem from "expo-file-system";
 
 // Fetch all reports
 export async function getAllReports(getToken: () => Promise<string | null>) {
@@ -25,9 +26,6 @@ export async function getReportById(
   return data.data;
 }
 
-// Create a Report
-import * as FileSystem from "expo-file-system";
-
 export async function createReport(
   values: CreateReportType,
   getToken: () => Promise<string | null>
@@ -37,14 +35,17 @@ export async function createReport(
 
   formData.append("title", values.title);
   formData.append("description", values.description || "");
-  formData.append("volume", values.volume || "");
+  formData.append("serialNumber", values.serialNumber || "");
+  formData.append("location", values.location || "");
   formData.append("projectId", values.projectId as string);
   formData.append("accountId", values.accountId as string);
+
+  console.log("Evidence list:", values.ReportEvidences);
 
   if (values.ReportEvidences && values.ReportEvidences.length > 0) {
     await Promise.all(
       values.ReportEvidences.map(async (evidence: any, index: number) => {
-        const fileUri = evidence.uri;
+        const fileUri = evidence.image;
         const fileInfo = await FileSystem.getInfoAsync(fileUri);
 
         if (fileInfo.exists) {
@@ -61,8 +62,6 @@ export async function createReport(
       })
     );
   }
-
-  console.log("Uploading FormData:", formData);
 
   try {
     const { data } = await axiosInstance.post("/reports", formData, {

@@ -1,12 +1,14 @@
 import { ReportType } from "./report";
 
-export interface AccountType {
-  id: number;
+export interface CreateAccountType {
   fullname: string;
   email: string;
-  password: string;
-  role: string;
+  role?: string;
   image?: string;
+}
+
+export interface AccountType extends CreateAccountType {
+  id: number;
   createdAt: Date;
   updatedAt: Date;
   Reports?: ReportType[];

@@ -5,7 +5,14 @@ import MenuShortcut from "@/components/tabs/home/MenuShortcut";
 import ProjectList from "@/components/tabs/home/ProjectList";
 import SearchInput from "@/components/tabs/home/SearchInput";
 import UserList from "@/components/tabs/home/UserList";
-import { SafeAreaView, ScrollView, StatusBar, View } from "react-native";
+import { useCallback, useState } from "react";
+import {
+  RefreshControl,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  View,
+} from "react-native";
 
 export const habits = [
   { icon: "🏋️", name: "WorkOut", progress: "8", target: "100" },
@@ -20,9 +27,21 @@ export const habits = [
 ];
 
 export default function Home() {
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 1000);
+  }, []);
+
   return (
     <SafeAreaView className="flex-1 bg-primary-50">
       <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
         className="flex-1 py-8"
         contentContainerStyle={{ paddingBottom: 120 }}
       >
@@ -30,7 +49,7 @@ export default function Home() {
         <HomeHeader />
         <SearchInput />
         <MenuShortcut />
-        <ProjectList />
+        <ProjectList refreshing={refreshing} />
         <UserList />
         <ActivityList />
       </ScrollView>

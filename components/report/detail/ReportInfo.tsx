@@ -5,6 +5,8 @@ import {
   ChevronDown,
   ChevronUp,
   ClipboardPenLine,
+  MapPin,
+  ScanBarcode,
 } from "lucide-react-native";
 import { Icon } from "@/components/ui/icon";
 import { format } from "date-fns";
@@ -12,6 +14,8 @@ import { format } from "date-fns";
 interface ReportInfoProps {
   projectTitle: string;
   reportTitle: string;
+  serialNumber: string;
+  location: string;
   date: Date;
   description?: string;
 }
@@ -19,6 +23,8 @@ interface ReportInfoProps {
 export default function ReportInfo({
   projectTitle,
   reportTitle,
+  serialNumber,
+  location,
   date,
   description,
 }: ReportInfoProps) {
@@ -33,18 +39,21 @@ export default function ReportInfo({
           </View>
           <Text className=" font-cereal-medium">{projectTitle}</Text>
         </View>
-        <View className="flex-1">
-          <Text className="text-2xl font-cereal-bold text-primary-500">
+        <View className="flex-1 mt-2">
+          <Text className="font-cereal">{format(date, "MMM, dd yyyy")}</Text>
+
+          <Text className="text-2xl text-primary-500 font-cereal-medium">
             {reportTitle}
           </Text>
-        </View>
-      </View>
-
-      <View className="flex-row items-center justify-between ">
-        <View>
-          <View className="flex-row items-center gap-2">
-            <Calendar size="16" color="#4459ff" />
-            <Text className="font-cereal">{format(date, "MMM, dd yyyy")}</Text>
+          <View className="flex-row justify-between mt-4">
+            <View className="flex-row items-center gap-2">
+              <ScanBarcode size="16" color="#4459ff" />
+              <Text className="font-cereal-medium">{serialNumber}</Text>
+            </View>
+            <View className="flex-row items-center gap-2">
+              <Text className="font-cereal-medium">{location}</Text>
+              <MapPin size="16" color="#4459ff" />
+            </View>
           </View>
         </View>
       </View>

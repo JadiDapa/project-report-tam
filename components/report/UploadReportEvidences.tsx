@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/modal";
 import { Camera, Images } from "lucide-react-native";
 import { ReportEvidenceType } from "@/lib/types/report-evidence";
+import * as Location from "expo-location";
+import { useWindowDimensions } from "react-native";
 
 interface UploadedReportEvidencesProps {
   uploadedEvidences: ReportEvidenceType[];
@@ -24,6 +26,8 @@ export default function UploadReportEvidences({
   setUploadedEvidences,
 }: UploadedReportEvidencesProps) {
   const [showModal, setShowModal] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null); // Add this state
+  const { width, height } = useWindowDimensions();
 
   const pickImages = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -44,15 +48,34 @@ export default function UploadReportEvidences({
   };
 
   const takePhoto = async () => {
+    // Request location permission
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== "granted") {
+      alert("Permission to access location was denied");
+      return;
+    }
+
+    // Get current location
+    let location = await Location.getCurrentPositionAsync({});
+
+    // Capture image
     let result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: false,
       quality: 1,
+      presentationStyle: ImagePicker.UIImagePickerPresentationStyle.FULL_SCREEN,
     });
 
     if (!result.canceled) {
       setUploadedEvidences([
         ...uploadedEvidences,
-        { image: result.assets[0].uri, description: "just a description" },
+        {
+          image: result.assets[0].uri,
+          description: "just a description",
+          location: {
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+          },
+        },
       ]);
     }
   };
@@ -71,11 +94,26 @@ export default function UploadReportEvidences({
     }
   };
 
-  console.log(uploadedEvidences);
-
   return (
     <View className="relative mt-3 ">
-      <Text className="px-6 text-lg font-cereal-medium">Evidences</Text>
+      {/* Add Full Screen Image Modal */}
+      <Modal isOpen={!!selectedImage} onClose={() => setSelectedImage(null)}>
+        <ModalBackdrop />
+        <ModalContent className="w-full h-full bg-transparent">
+          <Pressable
+            className="items-center justify-center flex-1"
+            onPress={() => setSelectedImage(null)}
+          >
+            <Image
+              source={{ uri: selectedImage || "" }}
+              style={{ width, height: height * 0.8 }}
+              resizeMode="contain"
+            />
+          </Pressable>
+        </ModalContent>
+      </Modal>
+
+      {/* Existing Modal */}
       <SelectEmployeeModal
         showModal={showModal}
         setShowModal={setShowModal}
@@ -83,6 +121,7 @@ export default function UploadReportEvidences({
         takePhoto={takePhoto}
         pickFromGoogleDrive={pickFromGoogleDrive}
       />
+
       <FlatList
         data={uploadedEvidences}
         horizontal
@@ -99,6 +138,7 @@ export default function UploadReportEvidences({
         )}
         renderItem={({ item: evidence }) => (
           <Pressable
+            onPress={() => setSelectedImage(evidence.image)} // Add this onPress
             onLongPress={() =>
               setUploadedEvidences(
                 uploadedEvidences.filter((e) => e !== evidence)

@@ -6,7 +6,7 @@ import Feather from "@expo/vector-icons/Feather";
 import { useSignUp } from "@clerk/clerk-expo";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createAccount } from "@/lib/network/account";
-import { AccountType } from "@/lib/types/account";
+import { AccountType, CreateAccountType } from "@/lib/types/account";
 import { useCustomToast } from "@/lib/useToast";
 
 export default function SignUpForm() {
@@ -22,7 +22,7 @@ export default function SignUpForm() {
   const queryClient = useQueryClient();
 
   const { mutate: onCreateUser } = useMutation({
-    mutationFn: (values: AccountType) => createAccount(values),
+    mutationFn: (values: CreateAccountType) => createAccount(values),
   });
 
   const handleSignUp = async () => {
@@ -33,7 +33,6 @@ export default function SignUpForm() {
       await onCreateUser({
         fullname,
         email: emailAddress,
-        password,
       });
       queryClient.invalidateQueries({ queryKey: ["accounts"] });
 
@@ -67,7 +66,7 @@ export default function SignUpForm() {
         </Text>
       </View>
       <View className="gap-4 mt-6">
-        <View className="relative flex flex-row gap-4 overflow-hidden rounded-full bg-primary-500/10 ">
+        <View className="relative flex flex-row gap-4 overflow-hidden rounded-full h-14 bg-primary-500/10 ">
           <Image
             source={userIcon}
             className="absolute -translate-y-1/2 size-6 left-6 top-1/2"
@@ -78,7 +77,7 @@ export default function SignUpForm() {
             className="w-full h-full text-lg font-cereal ps-16"
           />
         </View>
-        <View className="relative flex flex-row gap-4 overflow-hidden rounded-full bg-primary-500/10 ">
+        <View className="relative flex flex-row gap-4 overflow-hidden rounded-full h-14 bg-primary-500/10 ">
           <Image
             source={mailIcon}
             className="absolute -translate-y-1/2 size-6 left-6 top-1/2"
@@ -89,7 +88,7 @@ export default function SignUpForm() {
             className="w-full h-full text-lg font-cereal ps-16"
           />
         </View>
-        <View className="flex flex-row gap-4 overflow-hidden rounded-full bg-primary-500/10 ">
+        <View className="flex flex-row gap-4 overflow-hidden rounded-full h-14 bg-primary-500/10 ">
           <Image
             source={lockIcon}
             className="absolute -translate-y-1/2 size-6 left-6 top-1/2"

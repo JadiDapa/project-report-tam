@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Progress, ProgressFilledTrack } from "@/components/ui/progress";
 
 import { useRouter } from "expo-router";
@@ -7,13 +7,24 @@ import Feather from "@expo/vector-icons/Feather";
 import { useQuery } from "@tanstack/react-query";
 import { getAllProjects } from "@/lib/network/project";
 import { useAuth } from "@clerk/clerk-expo";
-export default function ProjectList() {
+
+interface ProjectListProps {
+  refreshing: boolean;
+}
+
+export default function ProjectList({ refreshing }: ProjectListProps) {
   const { getToken } = useAuth();
 
-  const { data: projects } = useQuery({
+  const { data: projects, refetch } = useQuery({
     queryFn: () => getAllProjects(getToken),
     queryKey: ["projects"],
   });
+
+  useEffect(() => {
+    if (refreshing) {
+      refetch();
+    }
+  }, [refreshing, refetch]);
 
   const router = useRouter();
 

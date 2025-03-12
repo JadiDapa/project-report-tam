@@ -8,6 +8,7 @@ import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { SafeAreaView, ScrollView, StatusBar } from "react-native";
 import LoadingScreen from "@/components/LoadingScreen";
+import ReportDiscussion from "@/components/report/detail/ReportDiscussion";
 
 export default function ReportDetail() {
   const [uploadedEvidences, setUploadedEvidences] = useState<any[]>([]);
@@ -37,14 +38,20 @@ export default function ReportDetail() {
 
         <ReportInfo
           projectTitle={report.Project.title}
-          reportTitle={report.title}
           date={report.createdAt}
+          reportTitle={report.title}
           description={report.description}
+          serialNumber={report.serialNumber}
+          location={report.location}
         />
         <UploadReportEvidences
           uploadedEvidences={uploadedEvidences}
           setUploadedEvidences={setUploadedEvidences}
         />
+        {/* <ReportDiscussion
+          reportId={report.id}
+          accountId={report.accountId as number}
+        /> */}
       </ScrollView>
     </SafeAreaView>
   );

@@ -24,7 +24,7 @@ export default function ProjectDetail() {
   return (
     <SafeAreaView className="flex-1 bg-primary-50">
       <ProgressReports
-        projectId={id as string}
+        project={project}
         reports={project.Reports}
         listHeader={
           <>

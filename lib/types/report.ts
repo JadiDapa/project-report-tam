@@ -5,7 +5,8 @@ import { CreateReportEvidenceType } from "./report-evidence";
 export interface CreateReportType {
   title: string;
   description?: string;
-  volume?: string;
+  serialNumber: string;
+  location: string;
   projectId: number | string;
   accountId: number | string;
   ReportEvidences?: CreateReportEvidenceType[];

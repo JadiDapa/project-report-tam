@@ -132,7 +132,7 @@ function SelectEmployeeModal({
             <TextInput
               onChangeText={setSearchValue}
               placeholder="Search Employee"
-              className="w-full ps-10 pe-2 font-cereal-medium"
+              className="w-full h-11 ps-10 pe-2 font-cereal-medium"
             />
             <View className="absolute items-center justify-center w-10 h-6 -translate-y-1/2 rounded-full bg-primary-200 right-2 top-1/2">
               <Text className="text-sm text-primary-600 font-cereal-medium">

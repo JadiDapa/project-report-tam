@@ -41,7 +41,7 @@ export default function SignInForm() {
         </Text>
       </View>
       <View className="gap-4 mt-6">
-        <View className="relative flex flex-row gap-4 overflow-hidden rounded-full bg-primary-500/10 ">
+        <View className="relative flex flex-row gap-4 overflow-hidden rounded-full h-14 bg-primary-500/10 ">
           <Image
             source={mailIcon}
             className="absolute -translate-y-1/2 size-6 left-6 top-1/2"
@@ -52,7 +52,7 @@ export default function SignInForm() {
             className="w-full h-full text-lg font-cereal ps-16"
           />
         </View>
-        <View className="flex flex-row gap-4 overflow-hidden rounded-full bg-primary-500/10 ">
+        <View className="flex flex-row gap-4 overflow-hidden rounded-full h-14 bg-primary-500/10 ">
           <Image
             source={lockIcon}
             className="absolute -translate-y-1/2 size-6 left-6 top-1/2"

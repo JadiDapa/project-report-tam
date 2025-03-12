@@ -8,21 +8,24 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth, useUser } from "@clerk/clerk-expo";
 import { useCustomToast } from "@/lib/useToast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "expo-router";
+import { Redirect, useRouter } from "expo-router";
 import { createReport } from "@/lib/network/report";
-import { CreateReportType, ReportType } from "@/lib/types/report";
+import { CreateReportType } from "@/lib/types/report";
 import { getAccountByEmail } from "@/lib/network/account";
 import { getProjectById } from "@/lib/network/project";
 import LoadingScreen from "@/components/LoadingScreen";
 
 const reportSchema = z.object({
-  title: z.string().min(3, "Title must be at least 3 characters"),
-  description: z.string().min(10, "Description must be at least 10 characters"),
+  title: z.string().min(1, "Title Must Be Filled"),
+  serialNumber: z.string().min(1, "Serial Number Must Be Filled"),
+  location: z.string().min(1, "Location Must Be Filled"),
+  description: z.string().min(1, "Description Must Be Filled"),
   volume: z.string().optional(),
 });
 
 export default function CreateReportForm({ projectId }: { projectId: string }) {
   const [uploadedEvidences, setUploadedEvidences] = useState<any[]>([]);
+
   const { getToken } = useAuth();
   const { user } = useUser();
 
@@ -48,6 +51,8 @@ export default function CreateReportForm({ projectId }: { projectId: string }) {
   } = useForm<z.infer<typeof reportSchema>>({
     resolver: zodResolver(reportSchema),
     defaultValues: {
+      serialNumber: "",
+      location: "",
       title: "",
       description: "",
       volume: "",
@@ -65,8 +70,8 @@ export default function CreateReportForm({ projectId }: { projectId: string }) {
       });
     },
     onError: (err) => {
-      showToast("Error", "Failed To Create Project");
       console.log(err);
+      showToast("Error", err?.message || "Failed To Create Report");
     },
   });
 
@@ -81,7 +86,13 @@ export default function CreateReportForm({ projectId }: { projectId: string }) {
     }
   };
 
-  if (!project) return <LoadingScreen />;
+  if (!project || !account) return <LoadingScreen />;
+
+  const isEmployee = project.Employees.find(
+    (emp) => emp.Account.id === account?.id
+  );
+
+  if (!isEmployee) return <Redirect href={"/"} />;
 
   return (
     <View className="gap-6 px-6 mt-8 mb-24">
@@ -89,13 +100,13 @@ export default function CreateReportForm({ projectId }: { projectId: string }) {
         <View className="relative flex-1 ">
           <Text className="text-sm font-cereal-medium">Project</Text>
           <Text className="text-lg text-primary-500 font-cereal-medium ">
-            {project?.title}
+            {project.title}
           </Text>
         </View>
         <View className="relative items-end flex-1 ">
           <Text className="text-sm text-end font-cereal-medium">Reporter</Text>
           <Text className="text-lg text-end text-primary-500 font-cereal-medium">
-            {account?.fullname}
+            {account.fullname}
           </Text>
         </View>
       </View>
@@ -119,6 +130,51 @@ export default function CreateReportForm({ projectId }: { projectId: string }) {
         {errors.title && (
           <Text className="text-red-500 font-cereal-medium">
             {errors.title.message}
+          </Text>
+        )}
+      </View>
+
+      {/* Report Location */}
+      <View className="relative">
+        <Text className="text-lg font-cereal-medium">Report Location</Text>
+
+        <Controller
+          control={control}
+          name="location"
+          render={({ field }) => (
+            <TextInput
+              placeholder="Report Location"
+              value={field.value}
+              onChangeText={field.onChange}
+              className="w-full px-3 mt-3 bg-white h-14 rounded-xl font-cereal-medium"
+            />
+          )}
+        />
+        {errors.location && (
+          <Text className="text-red-500 font-cereal-medium">
+            {errors.location.message}
+          </Text>
+        )}
+      </View>
+      {/* Serial Number */}
+      <View className="relative">
+        <Text className="text-lg font-cereal-medium">Serial Number</Text>
+
+        <Controller
+          control={control}
+          name="serialNumber"
+          render={({ field }) => (
+            <TextInput
+              placeholder="Serial Number"
+              value={field.value}
+              onChangeText={field.onChange}
+              className="w-full px-3 mt-3 bg-white h-14 rounded-xl font-cereal-medium"
+            />
+          )}
+        />
+        {errors.serialNumber && (
+          <Text className="text-red-500 font-cereal-medium">
+            {errors.serialNumber.message}
           </Text>
         )}
       </View>

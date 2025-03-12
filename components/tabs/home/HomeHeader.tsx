@@ -32,6 +32,7 @@ export default function HomeHeader() {
     <View className="flex flex-row items-center justify-between px-6 ">
       <View className="">
         <Text className="text-sm font-cereal-medium">Good Morning,</Text>
+
         <Text className="text-2xl/tight text-primary-500 font-cereal-bold">
           {account?.fullname}
         </Text>
