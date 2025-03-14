@@ -28,6 +28,20 @@ export async function getProjectById(
   return data.data;
 }
 
+export async function getProjectReportEvidences(
+  id: string,
+  getToken: () => Promise<string | null>
+) {
+  const token = await getToken();
+  const { data } = await axiosInstance.get<{ data: string }>(
+    `/projects/generate-report/${id}`,
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+  return data.data;
+}
+
 // Create a project
 export async function createProject(
   values: CreateProjectType,

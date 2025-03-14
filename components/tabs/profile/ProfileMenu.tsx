@@ -41,7 +41,10 @@ export default function ProfileMenu() {
     <View className="">
       <View className="py-4">
         {menu.map((item) => (
-          <Pressable className="flex-row items-center gap-4 px-6 py-4 ">
+          <Pressable
+            key={item.title}
+            className="flex-row items-center gap-4 px-6 py-4 "
+          >
             <item.Icon size={24} color={"#6073ff"} />
             <Text className="text-lg font-cereal-medium text-primary-700">
               {item.title}

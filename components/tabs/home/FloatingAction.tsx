@@ -1,9 +1,24 @@
-import { View, TouchableOpacity } from "react-native";
+import { TouchableOpacity } from "react-native";
 import Entypo from "@expo/vector-icons/Entypo";
 import { useRouter } from "expo-router";
+import { useUser } from "@clerk/clerk-expo";
+import { useQuery } from "@tanstack/react-query";
+import { getAccountByEmail } from "@/lib/network/account";
 
 export default function FloatingAction() {
   const router = useRouter();
+  const { user } = useUser();
+
+  const { data: account } = useQuery({
+    queryFn: () =>
+      getAccountByEmail(user?.primaryEmailAddress?.emailAddress || ""),
+    queryKey: ["account"],
+  });
+
+  const isAdmin = account?.role === "admin";
+
+  if (!isAdmin) return null;
+
   return (
     <TouchableOpacity
       onPress={() => router.push("/project/create")}

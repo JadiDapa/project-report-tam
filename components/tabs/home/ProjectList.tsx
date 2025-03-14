@@ -14,6 +14,8 @@ interface ProjectListProps {
 
 export default function ProjectList({ refreshing }: ProjectListProps) {
   const { getToken } = useAuth();
+  const [selectedStatus, setSelectedStatus] = React.useState("All");
+  const [projectQuery, setProjectQuery] = React.useState("");
 
   const { data: projects, refetch } = useQuery({
     queryFn: () => getAllProjects(getToken),
@@ -28,6 +30,20 @@ export default function ProjectList({ refreshing }: ProjectListProps) {
 
   const router = useRouter();
 
+  if (!projects) return null;
+
+  const filteredProjects = projects.filter((project) => {
+    const matchesSearch = project.title
+      .toLowerCase()
+      .includes(projectQuery.toLowerCase());
+
+    const matchesRole =
+      selectedStatus === "All" ||
+      project.status.toLowerCase() === selectedStatus.toLowerCase();
+
+    return matchesSearch && matchesRole;
+  });
+
   return (
     <View className="mt-9">
       {/* Header placed separately */}
@@ -39,7 +55,7 @@ export default function ProjectList({ refreshing }: ProjectListProps) {
       </View>
 
       <FlatList
-        data={projects}
+        data={filteredProjects}
         horizontal
         className="mt-2 ps-6"
         showsHorizontalScrollIndicator={false}

@@ -1,8 +1,14 @@
 import { View, TextInput } from "react-native";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import Feather from "@expo/vector-icons/Feather";
+import { Dispatch } from "react";
 
-export default function SearchInput() {
+interface SearchInputProps {
+  query: string;
+  setQuery: Dispatch<React.SetStateAction<string>>;
+}
+
+export default function SearchInput({ query, setQuery }: SearchInputProps) {
   return (
     <View className="flex flex-row items-center justify-between gap-4 px-6 mt-6">
       <View className="relative flex-1 overflow-hidden border rounded-full border-slate-400 bg-slate-50">
@@ -12,7 +18,12 @@ export default function SearchInput() {
           size={20}
           color="slate"
         />
-        <TextInput className="py-3 ps-12" placeholder="Search Anything..." />
+        <TextInput
+          className="py-3 ps-12"
+          placeholder="Search Anything..."
+          value={query}
+          onChangeText={setQuery}
+        />
       </View>
       <View className="items-center justify-center border rounded-full bg-slate-50 border-slate-400 size-12 ">
         <FontAwesome6 name="sliders" size={20} color="slate" />

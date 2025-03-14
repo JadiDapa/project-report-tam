@@ -13,10 +13,11 @@ export default function HomeHeader() {
 
   const router = useRouter();
 
+  const userEmail = user?.primaryEmailAddress?.emailAddress || "";
+
   const { data: account } = useQuery({
-    queryFn: () =>
-      getAccountByEmail(user?.primaryEmailAddress?.emailAddress || ""),
-    queryKey: ["account"],
+    queryFn: () => getAccountByEmail(userEmail),
+    queryKey: ["accounts", userEmail],
   });
 
   async function handleSignOut() {

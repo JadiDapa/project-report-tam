@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Dispatch, useState } from "react";
 import { View, Text, Pressable, FlatList } from "react-native";
 
 const statuses = [
@@ -10,8 +10,15 @@ const statuses = [
   { label: "Pending", value: "Pending" },
 ];
 
-export default function StatusSelect() {
-  const [status, setStatus] = useState("");
+interface StatusSelectProps {
+  status: string;
+  setSelectedStatus: Dispatch<React.SetStateAction<string>>;
+}
+
+export default function StatusSelect({
+  status,
+  setSelectedStatus,
+}: StatusSelectProps) {
   return (
     <FlatList
       data={statuses}
@@ -21,7 +28,7 @@ export default function StatusSelect() {
       keyExtractor={(project) => project.label.toString()}
       renderItem={({ item }) => (
         <Pressable
-          onPress={() => setStatus(item.value)}
+          onPress={() => setSelectedStatus(item.value)}
           className={`items-center justify-center border  me-2  h-8 px-4 py-1 mt-3 w-24 rounded-full ${
             status === item.value
               ? "bg-primary-500 border-primary-500"

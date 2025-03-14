@@ -1,3 +1,4 @@
+import { ProjectType } from "./project";
 import { ReportType } from "./report";
 
 export interface CreateAccountType {
@@ -12,4 +13,5 @@ export interface AccountType extends CreateAccountType {
   createdAt: Date;
   updatedAt: Date;
   Reports?: ReportType[];
+  Projects?: ProjectType[];
 }

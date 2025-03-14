@@ -5,7 +5,7 @@ import MenuShortcut from "@/components/tabs/home/MenuShortcut";
 import ProjectList from "@/components/tabs/home/ProjectList";
 import SearchInput from "@/components/tabs/home/SearchInput";
 import UserList from "@/components/tabs/home/UserList";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   RefreshControl,
   SafeAreaView,
@@ -28,6 +28,7 @@ export const habits = [
 
 export default function Home() {
   const [refreshing, setRefreshing] = useState(false);
+  const [query, setQuery] = useState("");
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -47,7 +48,7 @@ export default function Home() {
       >
         <StatusBar backgroundColor="#eceffb" />
         <HomeHeader />
-        <SearchInput />
+        <SearchInput query={query} setQuery={setQuery} />
         <MenuShortcut />
         <ProjectList refreshing={refreshing} />
         <UserList />
