@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { SafeAreaView, ScrollView, StatusBar } from "react-native";
 import LoadingScreen from "@/components/LoadingScreen";
 import ReportDiscussion from "@/components/report/detail/ReportDiscussion";
+import StackScreenHeader from "@/components/StackScreenHeader";
 
 export default function ReportDetail() {
   const [uploadedEvidences, setUploadedEvidences] = useState<any[]>([]);
@@ -16,6 +17,8 @@ export default function ReportDetail() {
   const { id } = useLocalSearchParams();
 
   const { getToken } = useAuth();
+
+  console.log(getToken);
 
   const { data: report } = useQuery({
     queryFn: () => getReportById(id as string, getToken),
@@ -28,14 +31,15 @@ export default function ReportDetail() {
     }
   }, [report]);
 
+  console.log(report);
+
   if (!report) return <LoadingScreen />;
 
   return (
     <SafeAreaView className="flex-1 bg-primary-50 ">
-      <ScrollView className="py-6">
-        <StatusBar backgroundColor="#eceffb" />
-        <ReportHeader />
-
+      <StatusBar backgroundColor="#2d52d2" />
+      <StackScreenHeader title="Report Detail" />
+      <ScrollView>
         <ReportInfo
           projectTitle={report.Project.title}
           date={report.createdAt}

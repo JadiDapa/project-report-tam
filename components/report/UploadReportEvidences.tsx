@@ -11,7 +11,7 @@ import {
   ModalHeader,
   ModalBody,
 } from "@/components/ui/modal";
-import { Camera, Images } from "lucide-react-native";
+import { Camera, Images, Trash2 } from "lucide-react-native";
 import { ReportEvidenceType } from "@/lib/types/report-evidence";
 import * as Location from "expo-location";
 import { useWindowDimensions } from "react-native";
@@ -55,9 +55,6 @@ export default function UploadReportEvidences({
       return;
     }
 
-    // Get current location
-    let location = await Location.getCurrentPositionAsync({});
-
     // Capture image
     let result = await ImagePicker.launchCameraAsync({
       allowsEditing: false,
@@ -71,10 +68,6 @@ export default function UploadReportEvidences({
         {
           image: result.assets[0].uri,
           description: "just a description",
-          location: {
-            latitude: location.coords.latitude,
-            longitude: location.coords.longitude,
-          },
         },
       ]);
     }
@@ -95,11 +88,11 @@ export default function UploadReportEvidences({
   };
 
   return (
-    <View className="relative mt-3 ">
+    <View className="relative py-6 mt-4 bg-white">
       {/* Add Full Screen Image Modal */}
       <Modal isOpen={!!selectedImage} onClose={() => setSelectedImage(null)}>
         <ModalBackdrop />
-        <ModalContent className="w-full h-full bg-transparent">
+        <ModalContent className="w-full h-full bg-black/50">
           <Pressable
             className="items-center justify-center flex-1"
             onPress={() => setSelectedImage(null)}
@@ -109,6 +102,21 @@ export default function UploadReportEvidences({
               style={{ width, height: height * 0.8 }}
               resizeMode="contain"
             />
+          </Pressable>
+          <Pressable
+            onPress={() => {
+              setUploadedEvidences(
+                uploadedEvidences.filter(
+                  (e) =>
+                    e !==
+                    uploadedEvidences.find((e) => e.image === selectedImage)
+                )
+              );
+              setSelectedImage(null);
+            }}
+            className="absolute items-center justify-center bg-white rounded-lg top-6 right-6 size-10"
+          >
+            <Trash2 size={24} color="#56585f" />
           </Pressable>
         </ModalContent>
       </Modal>

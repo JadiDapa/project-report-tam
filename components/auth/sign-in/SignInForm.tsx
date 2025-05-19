@@ -3,12 +3,14 @@ import React, { useState } from "react";
 import { mailIcon, lockIcon, eyeClosedIcon } from "@/constants/Images";
 import { router } from "expo-router";
 import { useSignIn } from "@clerk/clerk-expo";
+import Feather from "@expo/vector-icons/Feather";
 
 export default function SignInForm() {
   const { signIn, setActive, isLoaded } = useSignIn();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   async function handleSignIn() {
     if (!isLoaded) return;
@@ -60,13 +62,19 @@ export default function SignInForm() {
           <TextInput
             placeholder="Password"
             onChangeText={(value) => setPassword(value)}
-            secureTextEntry={true}
+            secureTextEntry={showPassword ? false : true}
             className="w-full h-full text-lg font-cereal ps-16"
           />
-          <Image
-            source={eyeClosedIcon}
+          <Pressable
+            onPress={() => setShowPassword(!showPassword)}
             className="absolute -translate-y-1/2 size-6 right-6 top-1/2"
-          />
+          >
+            <Feather
+              name={showPassword ? "eye-off" : "eye"}
+              size={18}
+              color="black"
+            />
+          </Pressable>
         </View>
         <View className="flex-row items-center justify-between ">
           <Text className="pl-4 text-primary-500 font-cereal-medium">

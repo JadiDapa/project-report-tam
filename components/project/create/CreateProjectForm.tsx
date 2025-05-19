@@ -1,9 +1,8 @@
 import React, { useState } from "react";
-import { View, Text, Pressable, TextInput } from "react-native";
+import { View, Text, Pressable } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { Textarea, TextareaInput } from "@/components/ui/textarea";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createProject } from "@/lib/network/project";
 import * as z from "zod";
@@ -11,12 +10,25 @@ import SelectEmployee from "./SelectEmployee";
 import { useCustomToast } from "@/lib/useToast";
 import { useRouter } from "expo-router";
 import { useAuth } from "@clerk/clerk-expo";
-import { CreateProjectType, ProjectType } from "@/lib/types/project";
+import { CreateProjectType } from "@/lib/types/project";
+import FloatingInput from "@/components/FloatingInput";
 
 const statuses = [
-  { label: "Low", value: "low", bgColor: "bg-success-500" },
-  { label: "Medium", value: "medium", bgColor: "bg-warning-500" },
-  { label: "High", value: "high", bgColor: "bg-error-500" },
+  {
+    label: "Low",
+    value: "low",
+    bgColor: "bg-success-200 text-success-700 border-success-500",
+  },
+  {
+    label: "Medium",
+    value: "medium",
+    bgColor: "bg-warning-200 text-warning-700 border-warning-500",
+  },
+  {
+    label: "High",
+    value: "high",
+    bgColor: "bg-error-200 text-error-700 border-error-500",
+  },
 ];
 
 const projectSchema = z.object({
@@ -93,66 +105,57 @@ export default function CreateProjectForm() {
   };
 
   return (
-    <View className="gap-4 px-6 mt-8 mb-24">
-      {/* Project Name */}
-      <View className="relative">
-        <Text className="text-lg font-cereal-medium">Project Title</Text>
+    <View className="relative flex-1 gap-4 mt-8 ">
+      <View className="relative px-6 mb-7">
         <Controller
           control={control}
           name="title"
           render={({ field }) => (
-            <TextInput
-              placeholder="Project Title"
+            <FloatingInput
+              label="Reason"
               value={field.value}
               onChangeText={field.onChange}
-              className="w-full px-3 mt-3 bg-white h-14 rounded-xl font-cereal-medium"
             />
           )}
         />
         {errors.title && (
-          <Text className="text-red-500 font-cereal-medium">
+          <Text className="mt-1 text-red-400 font-cereal-regular">
             {errors.title.message}
           </Text>
         )}
       </View>
-
       {/* Project Description */}
-      <View className="relative mt-3">
-        <Text className="text-lg font-cereal-medium">Project Description</Text>
+      <View className="relative px-6 mb-7">
         <Controller
           control={control}
           name="description"
           render={({ field }) => (
-            <Textarea
-              size="lg"
-              className="w-full mt-3 bg-white border-white rounded-xl font-cereal-medium"
-            >
-              <TextareaInput
-                placeholder="Describe Your Project Here"
-                value={field.value}
-                onChangeText={field.onChange}
-                className="font-cereal-medium"
-              />
-            </Textarea>
+            <FloatingInput
+              label="Description"
+              value={field.value}
+              onChangeText={field.onChange}
+              multiline
+              numberOfLines={6}
+            />
           )}
         />
         {errors.description && (
-          <Text className="text-red-500 font-cereal-medium">
+          <Text className="mt-1 text-red-400 font-cereal-regular">
             {errors.description.message}
           </Text>
         )}
       </View>
 
       {/* Date Picker */}
-      <View className="flex flex-row items-center gap-3 mt-3">
+      <View className="relative flex flex-row items-center gap-3 px-6 mb-2">
         {/* Start Date */}
         <View className="relative flex-1">
-          <Text className="text-lg font-cereal-medium">Starting Date</Text>
+          <Text className="text-lg font-cereal-regular">Starting Date</Text>
           <Pressable
             onPress={() => setOpenStart(true)}
-            className="justify-center w-full px-3 py-3 mt-3 bg-white h-14 rounded-xl"
+            className="justify-center w-full px-3 py-3 mt-3 bg-white border rounded-md border-slate-300 h-14"
           >
-            <Text className="text-gray-600 font-cereal-medium">
+            <Text className="text-gray-600 font-cereal-regular">
               {startDate.toDateString()}
             </Text>
           </Pressable>
@@ -171,12 +174,12 @@ export default function CreateProjectForm() {
 
         {/* End Date */}
         <View className="relative flex-1">
-          <Text className="text-lg font-cereal-medium">End Date</Text>
+          <Text className="text-lg font-cereal-regular">End Date</Text>
           <Pressable
             onPress={() => setOpenEndDate(true)}
-            className="justify-center w-full px-3 py-3 mt-3 bg-white h-14 rounded-xl"
+            className="justify-center w-full px-3 py-3 mt-3 bg-white border rounded-md border-slate-300 h-14"
           >
-            <Text className="text-gray-600 font-cereal-medium">
+            <Text className="text-gray-600 font-cereal-regular">
               {endDate.toDateString()}
             </Text>
           </Pressable>
@@ -200,7 +203,7 @@ export default function CreateProjectForm() {
       />
 
       {/* Priority Selection */}
-      <View className="relative mt-3">
+      <View className="relative px-6 mb-32">
         <Text className="text-lg font-cereal-medium">Priority</Text>
         <View className="flex-row justify-between">
           {statuses.map((item) => (
@@ -211,13 +214,13 @@ export default function CreateProjectForm() {
               render={({ field }) => (
                 <Pressable
                   onPress={() => field.onChange(item.value)}
-                  className={`items-center justify-center h-12 px-3 py-2 mt-3 w-28 rounded-xl ${
-                    status === item.value ? item.bgColor : "bg-white"
+                  className={`items-center justify-center border-slate-300 border h-12 px-3 py-2 mt-3 w-28 rounded-xl ${
+                    status === item.value ? item.bgColor : "bg-white "
                   }`}
                 >
                   <Text
                     className={`font-cereal-medium ${
-                      status === item.value ? "text-white" : "text-gray-600"
+                      status === item.value ? item.bgColor : "text-slate-500"
                     }`}
                   >
                     {item.label}
@@ -230,15 +233,18 @@ export default function CreateProjectForm() {
       </View>
 
       {/* Submit Button */}
-      <Pressable
-        className="w-full py-4 mt-6 rounded-full bg-primary-500"
-        onPress={handleSubmit(onSubmit)}
-        disabled={isPending}
-      >
-        <Text className="text-xl text-center text-white font-cereal-bold">
-          {isPending ? "Creating..." : "Create Project"}
-        </Text>
-      </Pressable>
+
+      <View className="absolute bottom-0 w-full px-6 py-4 bg-white border-t shadow-md border-slate-200">
+        <Pressable
+          disabled={isPending}
+          onPress={handleSubmit(onSubmit)}
+          className="flex-1"
+        >
+          <Text className="px-6 py-4 text-lg text-center text-white rounded-md shadow-lg font bg-primary-500 font-cereal-medium shadow-primary-500/50">
+            {isPending ? "Creating..." : "Submit"}
+          </Text>
+        </Pressable>
+      </View>
     </View>
   );
 }

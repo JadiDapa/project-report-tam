@@ -1,8 +1,9 @@
 import "@/global.css";
 import { useFonts } from "expo-font";
-import { Slot, SplashScreen, Stack } from "expo-router";
+import { Redirect, Slot, SplashScreen, Stack } from "expo-router";
 import { useEffect } from "react";
 import GlobalProvider from "@/lib/global-provider";
+import { useUser } from "@clerk/clerk-expo";
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({

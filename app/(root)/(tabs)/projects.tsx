@@ -15,6 +15,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getAllProjects } from "@/lib/network/project";
 import ProjectCard from "@/components/tabs/projects/ProjectCard";
 import SearchInput from "@/components/tabs/home/SearchInput";
+import TabScreenHeader from "@/components/tabs/TabScreenHeader";
 
 export default function Project() {
   const { getToken } = useAuth();
@@ -55,11 +56,10 @@ export default function Project() {
   });
 
   return (
-    <SafeAreaView className="flex-1 bg-primary-50">
-      <View className="pt-8">
-        <StatusBar backgroundColor="#eceffb" />
-        <FloatingAction />
-        <ProjectHeader />
+    <SafeAreaView className="relative flex-1 bg-primary-50">
+      <StatusBar backgroundColor="#2d52d2" />
+      <TabScreenHeader title="Projects" />
+      <View className="">
         <SearchInput query={projectQuery} setQuery={setProjectQuery} />
         <StatusSelect
           status={selectedStatus}

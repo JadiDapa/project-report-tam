@@ -1,55 +1,30 @@
-import { View, Text, Pressable } from "react-native";
-import React, { useEffect } from "react";
+import { View, Text } from "react-native";
 import Feather from "@expo/vector-icons/Feather";
-import { useAuth, useClerk, useUser } from "@clerk/clerk-expo";
-import { DoorOpen } from "lucide-react-native";
-import { useRouter } from "expo-router";
-import { useQuery } from "@tanstack/react-query";
-import { getAccountByEmail } from "@/lib/network/account";
+import { useAccount } from "@/contexts/AccountContexts";
 
 export default function HomeHeader() {
-  const { signOut } = useClerk();
-  const { user } = useUser();
+  const { account, loading } = useAccount();
 
-  const router = useRouter();
-
-  const userEmail = user?.primaryEmailAddress?.emailAddress || "";
-
-  const { data: account } = useQuery({
-    queryFn: () => getAccountByEmail(userEmail),
-    queryKey: ["accounts", userEmail],
-  });
-
-  async function handleSignOut() {
-    try {
-      await signOut();
-      router.replace("/auth");
-    } catch (err) {
-      console.log(err);
-    }
-  }
+  if (loading) return <Text>Loading account...</Text>;
 
   return (
-    <View className="flex flex-row items-center justify-between px-6 ">
+    <View className="flex flex-row items-center justify-between px-6 pt-8 bg-primary-500">
       <View className="">
-        <Text className="text-sm font-cereal-medium">Good Morning,</Text>
+        <Text className="text-sm text-white font-cereal-medium">
+          Good Morning,
+        </Text>
 
-        <Text className="text-2xl/tight text-primary-500 font-cereal-bold">
+        <Text className="text-white text-2xl/tight font-cereal-bold">
           {account?.fullname}
         </Text>
       </View>
       <View className="flex flex-row items-center gap-4">
-        <View className="items-center justify-center border rounded-full border-slate-400 size-10 ">
-          <Feather name="bell" size={24} color="#57595f" />
+        <View className="items-center justify-center border border-white rounded-full size-10 ">
+          <Feather name="bell" size={24} color="#ffffff" />
         </View>
-        <Pressable
-          onPress={handleSignOut}
-          className="items-center justify-center border rounded-full border-slate-400 size-10 "
-        >
-          <DoorOpen size={24} color="#57595f" />
-        </Pressable>
-        <View className="items-center justify-center border rounded-full border-slate-400 size-10 ">
-          <Text className="text-slate-500 font-cereal-bold">DP</Text>
+
+        <View className="items-center justify-center border border-white rounded-full size-10 ">
+          <Text className="text-white font-cereal-bold">DP</Text>
         </View>
       </View>
     </View>

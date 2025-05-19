@@ -28,7 +28,23 @@ export async function createAccount(values: CreateAccountType) {
 }
 
 export async function updateAccount(id: string, values: CreateAccountType) {
-  const { data } = await axiosInstance.put("/accounts/" + id, values);
+  const formData = new FormData();
+
+  formData.append("fullname", values.fullname);
+  formData.append("role", values.role as string);
+  formData.append("email", values.email);
+  formData.append("image", {
+    uri: values.image!,
+    name: "upload.jpg",
+    type: "image/jpeg",
+  } as any);
+
+  const { data } = await axiosInstance.put("/accounts/" + id, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+
   return data.data;
 }
 

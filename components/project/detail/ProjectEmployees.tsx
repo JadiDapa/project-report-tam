@@ -11,7 +11,7 @@ interface ProjectEmployees {
 
 export default function ProjectEmployees({ employees }: ProjectEmployees) {
   return (
-    <View className="gap-4 mt-6">
+    <View className="gap-3 py-6 mt-4 bg-white">
       <View className="flex-row items-center gap-2 px-6">
         <Text className="text-xl font-cereal-bold">Employees</Text>
         <Text className="text-lg text-primary-500 font-cereal-medium">

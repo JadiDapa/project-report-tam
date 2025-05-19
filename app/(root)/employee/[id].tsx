@@ -1,11 +1,12 @@
-import EmployeeDetailHeader from "@/components/employee/EmployeeDetailHeader";
+import DailyReportCard from "@/components/daily-report/DailyReportCard";
 import EmployeeMenuSelect from "@/components/employee/EmployeeMenuSelect";
 import LoadingScreen from "@/components/LoadingScreen";
 import ReportCard from "@/components/report/ReportCard";
+import StackScreenHeader from "@/components/StackScreenHeader";
 import ProfileInfo from "@/components/tabs/profile/ProfileInfo";
 import ProjectCard from "@/components/tabs/projects/ProjectCard";
 import { getAccountById } from "@/lib/network/account";
-import { ProjectType } from "@/lib/types/project";
+import { DailyReportType } from "@/lib/types/daily-report";
 import { ReportType } from "@/lib/types/report";
 import { useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams } from "expo-router";
@@ -15,6 +16,7 @@ import {
   RefreshControl,
   SafeAreaView,
   StatusBar,
+  View,
 } from "react-native";
 
 export default function EmployeeDetail() {
@@ -37,19 +39,20 @@ export default function EmployeeDetail() {
   if (!account) return <LoadingScreen />;
 
   const headerContent = (
-    <>
-      <EmployeeDetailHeader />
+    <SafeAreaView className="relative flex-1 bg-primary-50">
+      <StackScreenHeader title="Account Detail" />
       <ProfileInfo account={account} />
       <EmployeeMenuSelect
         selectedMenu={selectedMenu}
         setSelectedMenu={setSelectedMenu}
       />
-    </>
+    </SafeAreaView>
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-primary-50">
-      <StatusBar backgroundColor="#eceffb" />
+    <View className="flex-1 bg-primary-50">
+      <StatusBar backgroundColor="#2d52d2" />
+
       {selectedMenu === "projects" ? (
         <ProjectList
           projects={account.Projects ?? []}
@@ -59,13 +62,13 @@ export default function EmployeeDetail() {
         />
       ) : (
         <ReportList
-          reports={account.Reports ?? []}
+          reports={account.DailyReports ?? []}
           header={headerContent}
           isFetching={isFetching}
           onRefresh={onRefresh}
         />
       )}
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -108,7 +111,7 @@ function ReportList({
   isFetching,
   onRefresh,
 }: {
-  reports: ReportType[];
+  reports: DailyReportType[];
   header: JSX.Element;
   isFetching: boolean;
   onRefresh: () => void;
@@ -121,7 +124,7 @@ function ReportList({
       refreshControl={
         <RefreshControl refreshing={isFetching} onRefresh={onRefresh} />
       }
-      renderItem={({ item }) => <ReportCard report={item} />}
+      renderItem={({ item }) => <DailyReportCard report={item} />}
     />
   );
 }

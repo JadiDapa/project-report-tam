@@ -33,6 +33,7 @@ export default function SignUpForm() {
       await onCreateUser({
         fullname,
         email: emailAddress,
+        roleId: 1,
       });
       queryClient.invalidateQueries({ queryKey: ["accounts"] });
 

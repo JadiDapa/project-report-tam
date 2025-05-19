@@ -6,7 +6,7 @@ import { useRouter } from "expo-router";
 export default function ReportCard({ report }: { report: ReportType }) {
   const router = useRouter();
   return (
-    <View className="px-6 mt-4">
+    <View className="px-6 bg-white pb-7">
       <Pressable
         onPress={() =>
           router.push({
@@ -14,7 +14,7 @@ export default function ReportCard({ report }: { report: ReportType }) {
             params: { id: report.id },
           })
         }
-        className="flex-row items-center w-full h-[96px] gap-3 p-4 bg-white shadow-md rounded-xl"
+        className="flex-row items-center border-slate-400 w-full h-[96px] gap-3 p-4 border bg-white shadow-md rounded-xl"
       >
         <View className="items-center justify-center border rounded-full border-slate-400 size-14 bg-primary-200">
           <Text className="text-xl text-white font-cereal-medium">DP</Text>

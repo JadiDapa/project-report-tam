@@ -13,6 +13,7 @@ import { getAllAccounts } from "@/lib/network/account";
 import EmployeeRoleSelect from "@/components/tabs/employee/EmployeeRoleSelect";
 import EmployeeCard from "@/components/tabs/employee/EmployeeCard";
 import EmployeeHeader from "@/components/tabs/employee/EmployeeHeader";
+import TabScreenHeader from "@/components/tabs/TabScreenHeader";
 
 export default function Employee() {
   const [refreshing, setRefreshing] = useState(false);
@@ -46,17 +47,17 @@ export default function Employee() {
 
     const matchesRole =
       selectedRole === "all" ||
-      account.role!.toLowerCase() === selectedRole.toLowerCase();
+      account.Role.name!.toLowerCase() === selectedRole.toLowerCase();
 
     return matchesSearch && matchesRole;
   });
 
   return (
     <SafeAreaView className="flex-1 bg-primary-50">
-      <View className="pt-8">
-        <StatusBar backgroundColor="#eceffb" />
-        <FloatingAction />
-        <EmployeeHeader />
+      <StatusBar backgroundColor="#2d52d2" />
+      <TabScreenHeader title="Employees" />
+
+      <View className="">
         <SearchInput query={accountQuery} setQuery={setAccountQuery} />
         <EmployeeRoleSelect
           selectedRole={selectedRole}

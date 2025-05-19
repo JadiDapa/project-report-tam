@@ -1,72 +1,81 @@
-import React from "react";
 import { useRouter } from "expo-router";
 import { View, Text, FlatList, Pressable } from "react-native";
-import Foundation from "@expo/vector-icons/Foundation";
+import { useQuery } from "@tanstack/react-query";
+import { getAllDailyReports } from "@/lib/network/daily-report";
+import DailyReportCard from "@/components/daily-report/DailyReportCard";
+import { format } from "date-fns";
 
-export default function ActivityList() {
+export default function reportList() {
   const router = useRouter();
-  const projects = [
-    {
-      id: 1,
-      username: "Daffa AR",
-      project: "Pemasangan CCTV Polda",
-      description: "Memasang CCTV di polda  20 unit di 4 titik wara were",
-      progress: 10,
-      priority: "high",
-    },
-    {
-      id: 2,
-      username: "Daffa AR",
-      project: "Project 2",
-      description: "Memasang CCTV di polda  20 unit di 4 titik wara were",
-      progress: 40,
-      priority: "medium",
-    },
-    {
-      id: 3,
-      username: "Daffa AR",
-      project: "Project 3",
-      description: "Memasang CCTV di polda  20 unit di 4 titik wara were",
-      progress: 70,
-      priority: "low",
-    },
-    {
-      id: 4,
-      username: "Daffa AR",
-      project: "Project 4",
-      description: "Memasang CCTV di polda  20 unit di 4 titik wara were",
-      progress: 80,
-      priority: "high",
-    },
-  ];
+
+  const { data: reports } = useQuery({
+    queryFn: () => getAllDailyReports(),
+    queryKey: ["reports"],
+  });
+
   return (
-    <View className="mt-6">
+    <View className="py-6 mt-4 bg-white">
       {/* Header placed separately */}
       <View className="flex-row items-center justify-between px-6">
-        <Text className="text-lg font-cereal-medium">Recent Activities</Text>
+        <Text className="text-lg font-cereal-medium">Latest Daily Reports</Text>
         <View className="border rounded-full px-3 py-0.5">
           <Text className="text-sm font-cereal-medium">View All</Text>
         </View>
       </View>
 
       <FlatList
-        data={projects}
+        data={reports}
+        horizontal
+        className="mt-4 ps-6"
+        showsHorizontalScrollIndicator={false}
+        keyExtractor={(project) => project.id.toString()}
+        renderItem={({ item: report }) => (
+          <Pressable
+            onPress={() =>
+              router.push({
+                pathname: `/daily-report/[id]`,
+                params: { id: report.id },
+              })
+            }
+            className="flex-row items-center w-[88vw] me-4 h-40 gap-3 p-4 py-5 bg-primary-50 rounded-xl  border-2 border-primary-100"
+          >
+            <View className="justify-between flex-1 h-full">
+              <Text className=" line-clamp-2 font-cereal-bold">
+                {report.title}
+              </Text>
+              <Text className="mt-2 text-sm font-cereal-regular text-slate-500 line-clamp-2">
+                {report.description}
+              </Text>
+
+              <View className="flex-row items-center justify-between gap-1 mt-3">
+                <Text className="text-xs text-slate-500 font-cereal">
+                  {format(report.createdAt.toString(), "dd MMMM yyyy")}
+                </Text>
+
+                <Text className="text-sm text-primary-500 font-cereal-medium">
+                  {report.ReportEvidences.length} Evidences
+                </Text>
+              </View>
+            </View>
+          </Pressable>
+        )}
+      />
+
+      {/* <FlatList
+        data={reports}
         horizontal
         className="mt-2 ps-6"
         showsHorizontalScrollIndicator={false}
         keyExtractor={(project) => project.id.toString()}
-        renderItem={({ item: activity }) => (
+        renderItem={({ item: report }) => (
           <Pressable
             onPress={() => router.push(`/`)}
             className="flex-row items-center w-64 h-32 gap-2 p-4 mr-3 bg-white shadow-md rounded-xl"
           >
             <View className="justify-between flex-1 h-full">
               <View className="">
-                <Text className="text-sm text-primary-500 font-cereal-medium line-clamp-1">
-                  Project : {activity.project}
-                </Text>
                 <Text className=" mt-0.5 text-sm font-cereal text-slate-700 line-clamp-2">
-                  {activity.description}
+                  {report.description}
                 </Text>
               </View>
               <View className="flex-row items-center justify-between gap-1">
@@ -77,18 +86,18 @@ export default function ActivityList() {
                     </Text>
                   </View>
                   <Text className="text-sm text-primary-500 font-cereal-medium">
-                    {activity.username}
+                    {report.Account.fullname}
                   </Text>
                 </View>
 
                 <Text className="text-xs text-slate-500 font-cereal">
-                  {"3 Hours Ago"}
+                  {format(report.createdAt, "MMM, dd yyyy")}
                 </Text>
               </View>
             </View>
           </Pressable>
         )}
-      />
+      /> */}
     </View>
   );
 }

@@ -4,12 +4,14 @@ import Feather from "@expo/vector-icons/Feather";
 
 export default function ProfileHeader() {
   return (
-    <View className="flex flex-row items-center justify-between px-6">
-      <View className="items-center justify-center border rounded-full border-slate-400 size-10 ">
+    <View className="flex flex-row items-center justify-between px-6 pt-8 pb-4 bg-primary-500">
+      <View className="items-center justify-center text-white border border-white rounded-full size-10 ">
         <Text className="text-slate-500 font-cereal-bold">DP</Text>
       </View>
-      <Text className="text-xl font-cereal-medium">User Profile</Text>
-      <View className="items-center justify-center border rounded-full border-slate-400 size-10 ">
+      <Text className="text-xl text-white font-cereal-medium">
+        User Profile
+      </Text>
+      <View className="items-center justify-center border border-white rounded-full size-10 ">
         <Feather name="bell" size={24} color="#57595f" />
       </View>
     </View>

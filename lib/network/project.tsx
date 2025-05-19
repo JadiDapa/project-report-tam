@@ -14,6 +14,21 @@ export async function getAllProjects(getToken: () => Promise<string | null>) {
 }
 
 // Fetch a project by ID
+export async function getProjectsByAccountId(
+  accountId: string,
+  getToken: () => Promise<string | null>
+) {
+  const token = await getToken();
+  const { data } = await axiosInstance.get<{ data: ProjectType[] }>(
+    `/projects/account/${accountId}`,
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+  return data.data;
+}
+
+// Fetch a project by ID
 export async function getProjectById(
   id: string,
   getToken: () => Promise<string | null>

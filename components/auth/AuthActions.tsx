@@ -10,7 +10,7 @@ export default function AuthActions() {
         className="p-4 mt-6 overflow-hidden bg-white rounded-full"
       >
         <Text className="text-lg text-center text-primary-500 font-cereal-medium">
-          Continue With Your Email
+          Login With Your Account
         </Text>
       </Pressable>
       <Pressable
@@ -18,7 +18,7 @@ export default function AuthActions() {
         className="p-4 mt-2 overflow-hidden border border-white rounded-full"
       >
         <Text className="text-lg text-center text-white font-cereal-medium">
-          Sign Up
+          Request New Account
         </Text>
       </Pressable>
       <Text className="mt-4 text-xs text-center text-white/50 font-cereal">

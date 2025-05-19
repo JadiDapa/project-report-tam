@@ -1,28 +1,149 @@
-import { View, Text, Image } from "react-native";
-import { Mail, Phone, User } from "lucide-react-native";
-import { AccountType } from "@/lib/types/account";
+import { View, Text, Image, Pressable } from "react-native";
+import {
+  Camera,
+  Images,
+  Mail,
+  Pencil,
+  Phone,
+  User,
+  X,
+} from "lucide-react-native";
+import { AccountType, CreateAccountType } from "@/lib/types/account";
+import {
+  Actionsheet,
+  ActionsheetBackdrop,
+  ActionsheetContent,
+  ActionsheetDragIndicator,
+  ActionsheetDragIndicatorWrapper,
+  ActionsheetItem,
+  ActionsheetItemText,
+} from "@/components/ui/actionsheet";
+import { useEffect, useRef, useState } from "react";
+import { pickImage, takePhoto } from "@/lib/image-options";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { updateAccount } from "@/lib/network/account";
+import { useCustomToast } from "@/lib/useToast";
 
 export default function ProfileInfo({ account }: { account: AccountType }) {
+  const [showActionsheet, setShowActionsheet] = useState(false);
+  const [selectedProfile, setSelectedProfile] = useState();
+
+  const { showToast } = useCustomToast();
+  const queryClient = useQueryClient();
+
+  const handleClose = () => setShowActionsheet(false);
+
+  const { mutate: onUpdateReport } = useMutation({
+    mutationFn: (values: CreateAccountType) =>
+      updateAccount(account.id.toString(), values),
+    onSuccess: () => {
+      showToast("Success", "Project Report Added Successfully");
+      queryClient.invalidateQueries({ queryKey: ["accounts", account.id] });
+    },
+    onError: (err) => {
+      console.log(err);
+      showToast("Error", err?.message || "Failed To Create Report");
+    },
+  });
+
+  useEffect(() => {
+    if (selectedProfile) {
+      const updateReport = async () => {
+        await onUpdateReport({
+          email: account.email,
+          fullname: account.fullname,
+          roleId: account.roleId,
+          image: selectedProfile,
+        });
+      };
+
+      updateReport();
+      setSelectedProfile(undefined);
+    }
+  }, [selectedProfile]);
+
   return (
-    <View className="pt-6">
+    <View className="pt-6 bg-white">
       <View className="flex-row items-center gap-4 px-6 mt-4">
-        <View className="relative overflow-hidden rounded-full size-20">
+        <Pressable
+          onPress={() => setShowActionsheet(true)}
+          className="relative overflow-hidden rounded-full size-20"
+        >
           <Image
             source={{
-              uri: "https://avatars.githubusercontent.com/u/119063058?v=4",
+              uri:
+                account.image ||
+                "https://cdn.vectorstock.com/i/500p/08/19/gray-photo-placeholder-icon-design-ui-vector-35850819.jpg",
             }}
             className="object-cover object-center w-full h-full"
           />
-        </View>
+          <Actionsheet isOpen={showActionsheet} onClose={handleClose}>
+            <ActionsheetBackdrop />
+            <ActionsheetContent>
+              <ActionsheetDragIndicatorWrapper>
+                <ActionsheetDragIndicator />
+              </ActionsheetDragIndicatorWrapper>
+              <View className="relative flex-row items-center justify-center w-full gap-2 mt-4 ">
+                <Text className="text-lg font-cereal-medium">
+                  Change Profile Picture
+                </Text>
+              </View>
+              <View className="flex-row h-40 gap-6">
+                <ActionsheetItem
+                  className="flex-col items-center justify-center gap-2 w-30"
+                  onPress={() => {
+                    takePhoto(setSelectedProfile);
+                    handleClose();
+                  }}
+                >
+                  <View className="items-center justify-center p-6 border rounded-full border-slate-300">
+                    <Camera size={24} color={"black"} />
+                  </View>
+                  <ActionsheetItemText className="text-lg font-cereal-medium">
+                    Camera
+                  </ActionsheetItemText>
+                </ActionsheetItem>
+                <ActionsheetItem
+                  className="flex-col items-center justify-center gap-2 w-30"
+                  onPress={() => {
+                    pickImage(setSelectedProfile);
+                    handleClose();
+                  }}
+                >
+                  <View className="items-center justify-center p-6 border rounded-full border-slate-300">
+                    <Images size={24} color={"black"} />
+                  </View>
+                  <ActionsheetItemText className="text-lg font-cereal-medium">
+                    Gallery
+                  </ActionsheetItemText>
+                </ActionsheetItem>
+                <ActionsheetItem
+                  className="flex-col items-center justify-center gap-2 w-30"
+                  onPress={handleClose}
+                >
+                  <View className="items-center justify-center p-6 border border-dashed rounded-full border-slate-300">
+                    <X size={24} color={"black"} />
+                  </View>
+                  <ActionsheetItemText className="text-lg font-cereal-medium">
+                    Cancel
+                  </ActionsheetItemText>
+                </ActionsheetItem>
+              </View>
+            </ActionsheetContent>
+          </Actionsheet>
+        </Pressable>
         <View className="gap-1">
-          <Text className="text-2xl font-cereal-medium">
-            {account.fullname}
-          </Text>
+          <View className="flex-row items-center gap-2">
+            <Text className="text-2xl font-cereal-medium">
+              {account.fullname}
+            </Text>
+            <Pencil size={16} color={"#555"} />
+          </View>
 
           <View className="flex-row items-center self-start gap-2 px-3 py-1 rounded-lg bg-primary-100">
             <User size={14} strokeWidth={2} color={"blue"} />
             <Text className="text-sm capitalize text-primary-500 font-cereal-medium">
-              {account.role}
+              {account.Role.name}
             </Text>
           </View>
         </View>

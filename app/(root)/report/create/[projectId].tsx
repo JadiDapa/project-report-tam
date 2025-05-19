@@ -1,15 +1,16 @@
-import { ScrollView } from "react-native";
+import { ScrollView, StatusBar } from "react-native";
 import React from "react";
-import CreateReportHeader from "@/components/report/CreateReportHeader";
 import CreateReportForm from "@/components/report/CreateReportForm";
 import { useLocalSearchParams } from "expo-router";
+import StackScreenHeader from "@/components/StackScreenHeader";
 
 export default function CreateProgressReport() {
   const { projectId } = useLocalSearchParams();
 
   return (
-    <ScrollView className="flex-1 py-8 bg-primary-50">
-      <CreateReportHeader />
+    <ScrollView className="flex-1 bg-white">
+      <StatusBar backgroundColor="#2d52d2" />
+      <StackScreenHeader title="Add Project Report" />
       <CreateReportForm projectId={projectId as string} />
     </ScrollView>
   );

@@ -10,8 +10,8 @@ export default function TabsLayout() {
       Icon: Home,
     },
     {
-      name: "project",
-      title: "Project",
+      name: "projects",
+      title: "Projects",
       Icon: Briefcase,
     },
     {

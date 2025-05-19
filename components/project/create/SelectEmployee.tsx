@@ -46,7 +46,7 @@ export default function SelectEmployee({
   if (!accounts) return <Text>... Loading ...</Text>;
 
   return (
-    <View className="relative mt-3">
+    <View className="relative px-6 mb-2">
       <Text className="text-lg font-cereal-medium">Employee</Text>
       <SelectEmployeeModal
         accounts={accounts}

@@ -172,6 +172,7 @@ module.exports = {
       fontFamily: {
         "cereal-bold": ["AirbnbCereal-Bold", "sans-serif"],
         "cereal-light": ["AirbnbCereal-Light", "sans-serif"],
+        "cereal-regular": ["AirbnbCereal_Regular", "sans-serif"],
         "cereal-medium": ["AirbnbCereal-Medium", "sans-serif"],
         "cereal-extrabold": ["AirbnbCereal-ExtraBold", "sans-serif"],
         "cereal-black": ["AirbnbCereal-Black", "sans-serif"],

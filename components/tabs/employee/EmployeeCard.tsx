@@ -6,7 +6,6 @@ import { Briefcase, ClipboardPen } from "lucide-react-native";
 import { getInitials } from "@/lib/getInitials";
 
 export default function EmployeeCard({ account }: { account: AccountType }) {
-  console.log(account);
   return (
     <View className="px-6 mt-4">
       <Pressable
@@ -18,7 +17,7 @@ export default function EmployeeCard({ account }: { account: AccountType }) {
         }
         className="flex flex-row items-center w-full gap-4 p-4 bg-white shadow-md rounded-xl"
       >
-        <View className="items-center justify-center rounded-full bg-primary-300 size-14">
+        <View className="items-center justify-center overflow-hidden rounded-full bg-primary-300 size-14">
           {account.image ? (
             <Image
               src={account.image}
@@ -32,15 +31,13 @@ export default function EmployeeCard({ account }: { account: AccountType }) {
           )}
         </View>
         <View className="flex-1">
-          <View className="flex-row justify-between w-full">
+          <View className="">
             <Text className="text-lg font-cereal-medium">
               {account.fullname}
             </Text>
-            <View className="items-center justify-center h-6 px-2 rounded-full bg-primary-100">
-              <Text className="text-sm capitalize font-cereal-medium">
-                {account.role === "user" ? "employee" : account.role}
-              </Text>
-            </View>
+            <Text className="text-sm capitalize text-primary-500 font-cereal-medium">
+              {account.Role.name === "user" ? "employee" : account.Role.name}
+            </Text>
           </View>
 
           <View className="flex-row items-center justify-between gap-2 mt-2">

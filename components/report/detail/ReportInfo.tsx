@@ -2,9 +2,11 @@ import { View, Text, Pressable } from "react-native";
 import React, { useState } from "react";
 import {
   Calendar,
+  CalendarDaysIcon,
   ChevronDown,
   ChevronUp,
   ClipboardPenLine,
+  Cog,
   MapPin,
   ScanBarcode,
 } from "lucide-react-native";
@@ -31,41 +33,58 @@ export default function ReportInfo({
   const [moreDetail, setMoreDetail] = useState(false);
 
   return (
-    <View className="gap-6 px-6 mt-6 ">
-      <View className="gap-3 flex-column">
-        <View className="flex-row items-center gap-2">
-          <View className="items-center justify-center rounded-full size-8 bg-primary-500">
-            <ClipboardPenLine size="16" color="#eeeeee" />
-          </View>
-          <Text className=" font-cereal-medium">{projectTitle}</Text>
-        </View>
-        <View className="flex-1 mt-2">
-          <Text className="font-cereal">{format(date, "MMM, dd yyyy")}</Text>
-
-          <Text className="text-2xl text-primary-500 font-cereal-medium">
-            {reportTitle}
+    <View className="">
+      <View className="px-6 py-6 bg-white">
+        <View className="flex flex-row items-center justify-center gap-2 ">
+          <Cog color="#444" size={24} />
+          <Text className="text-lg text-center font-cereal-medium text-slate-700">
+            PROJECT REPORT
           </Text>
-          <View className="flex-row justify-between mt-4">
+          <Cog color="#444" size={24} />
+        </View>
+
+        <Text className="text-xl text-center font-cereal-medium text-primary-500">
+          #PR-060525-0001
+        </Text>
+
+        <Text className="mt-4 text-lg leading-tight text-center font-cereal-medium">
+          {reportTitle}
+        </Text>
+        <Text className="mt-2 text-center text-primary-300 font-cereal-regular">
+          {format(date, "dd MMMM yyyy, HH:mm")}
+        </Text>
+      </View>
+
+      <View className="px-6 py-6 mt-4 bg-white ">
+        <View className="flex-row items-center justify-between">
+          <View>
+            <Text className="text-lg font-cereal-medium">Serial Number</Text>
             <View className="flex-row items-center gap-2">
-              <ScanBarcode size="16" color="#4459ff" />
-              <Text className="font-cereal-medium">{serialNumber}</Text>
+              <Icon as={CalendarDaysIcon} size="sm" color="#4459ff" />
+              <Text className="font-cereal">{serialNumber}</Text>
             </View>
+          </View>
+          <View>
+            <Text className="text-lg font-cereal-medium text-end">
+              Location
+            </Text>
             <View className="flex-row items-center gap-2">
-              <Text className="font-cereal-medium">{location}</Text>
-              <MapPin size="16" color="#4459ff" />
+              <Icon as={CalendarDaysIcon} size="sm" color="#4459ff" />
+              <Text className="font-cereal">{location}</Text>
             </View>
           </View>
         </View>
       </View>
 
-      <View className="gap-2">
-        <Text className="text-xl font-cereal-bold">Report Detail</Text>
+      <View className="px-6 py-6 mt-4 bg-white ">
+        <Text className="text-xl font-cereal-bold">Detail</Text>
         <Text
-          className={`text-base/tight font-cereal text-justify text-slate-600 ${
+          className={`font-cereal text-justify text-slate-600 ${
             moreDetail ? "" : "line-clamp-5"
           }`}
         >
-          {description && description}. Lorem ipsum dolor sit amet, consectetur
+          {description && description}The project will incoperate with several
+          web development technologies. Lorem ipsum dolor sit amet, consectetur
           adipisicing elit. Nesciunt, ducimus? Repudiandae ab error consequatur
           nisi saepe reprehenderit maiores! Eum sed pariatur libero, repudiandae
           dolore quasi praesentium, earum porro assumenda totam animi eaque
@@ -80,7 +99,7 @@ export default function ReportInfo({
             size="lg"
             color="#4459ff"
           />
-          <Text className="leading-tight font-cereal text-primary-500">
+          <Text className="eading-tight font-cereal text-primary-500">
             {moreDetail ? "Show Less" : "Show More"}
           </Text>
         </Pressable>

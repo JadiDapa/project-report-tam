@@ -7,18 +7,17 @@ import {
   Linking,
 } from "react-native";
 import React, { ReactElement } from "react";
-import { Download, Plus } from "lucide-react-native";
+import { Download, MessageCircleX, Plus } from "lucide-react-native";
 import { useRouter } from "expo-router";
 import { ReportType } from "@/lib/types/report";
-import { useAuth, useUser } from "@clerk/clerk-expo";
-import { useQuery } from "@tanstack/react-query";
-import { getAccountByEmail } from "@/lib/network/account";
+import { useAuth } from "@clerk/clerk-expo";
 import { ProjectType } from "@/lib/types/project";
 import { getProjectReportEvidences } from "@/lib/network/project";
 import * as FileSystem from "expo-file-system";
 import { shareAsync } from "expo-sharing";
 import * as IntentLauncher from "expo-intent-launcher";
 import ReportCard from "@/components/report/ReportCard";
+import { useAccount } from "@/contexts/AccountContexts";
 
 interface ProgressReportsProps {
   listHeader: ReactElement<any, any>;
@@ -32,18 +31,12 @@ export default function ProgressReports({
   project,
 }: ProgressReportsProps) {
   const router = useRouter();
-  const { user } = useUser();
   const { getToken } = useAuth();
+  const { account, loading } = useAccount();
 
-  const { data: account } = useQuery({
-    queryFn: () =>
-      getAccountByEmail(user?.primaryEmailAddress?.emailAddress || ""),
-    queryKey: ["accounts", user?.primaryEmailAddress?.emailAddress],
-  });
+  if (loading || !account) return <Text>Loading account...</Text>;
 
-  const isEmployee = project.Employees.find(
-    (emp) => emp.Account.id === account?.id
-  );
+  const isEmployee = true;
 
   const downloadFile = async () => {
     const evidence = await getProjectReportEvidences(
@@ -118,7 +111,7 @@ export default function ProgressReports({
         <>
           {listHeader}
           {isEmployee && (
-            <View className="flex-row items-center justify-between gap-2 px-6 mt-8">
+            <View className="flex-row items-center justify-between gap-2 px-6 py-8 mt-6 bg-white">
               <Text className="text-xl font-cereal-bold">Progress Reports</Text>
               <View className="flex-row items-center gap-2 ">
                 <Pressable
@@ -136,6 +129,7 @@ export default function ProgressReports({
                   }
                   className="flex-row items-center gap-1 px-3 py-1 bg-primary-500 rounded-2xl"
                 >
+                  <View></View>
                   <Text className="text-sm text-white font-cereal-medium">
                     Report
                   </Text>
@@ -146,27 +140,19 @@ export default function ProgressReports({
           )}
         </>
       )}
+      ListEmptyComponent={() => (
+        <View className="w-full px-6 bg-white">
+          <View className="items-center justify-center h-24 border-2 border-dashed rounded-xl">
+            <MessageCircleX size={24} color="#343539" />
+            <Text className="text-lg font-cereal-medium">
+              No Report Available
+            </Text>
+          </View>
+        </View>
+      )}
       renderItem={({ item: report }) => <ReportCard report={report} />}
       ListFooterComponent={() => {
-        if (isEmployee)
-          return (
-            <View className="w-full px-6 mt-6">
-              <Pressable
-                onPress={() =>
-                  router.push({
-                    pathname: "/report/create/[projectId]",
-                    params: { projectId: project.id },
-                  })
-                }
-                className="items-center justify-center h-24 border-2 border-dashed rounded-xl"
-              >
-                <Plus size={24} color="#343539" />
-                <Text className="text-lg font-cereal-medium">
-                  Add New Report
-                </Text>
-              </Pressable>
-            </View>
-          );
+        return <View className="h-32 bg-white" />;
       }}
     />
   );

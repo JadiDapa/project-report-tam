@@ -1,12 +1,10 @@
-import { useUser } from "@clerk/clerk-expo";
-import { Redirect, Slot } from "expo-router";
+import { AccountProvider } from "@/contexts/AccountContexts";
+import { Slot } from "expo-router";
 
 export default function AppLayout() {
-  const { user } = useUser();
-
-  if (!user) {
-    return <Redirect href="/auth" />;
-  }
-
-  return <Slot />;
+  return (
+    <AccountProvider>
+      <Slot />
+    </AccountProvider>
+  );
 }

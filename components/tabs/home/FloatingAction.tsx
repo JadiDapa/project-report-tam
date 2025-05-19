@@ -1,21 +1,16 @@
-import { TouchableOpacity } from "react-native";
+import { Text, TouchableOpacity } from "react-native";
 import Entypo from "@expo/vector-icons/Entypo";
 import { useRouter } from "expo-router";
-import { useUser } from "@clerk/clerk-expo";
-import { useQuery } from "@tanstack/react-query";
-import { getAccountByEmail } from "@/lib/network/account";
+import { useAccount } from "@/contexts/AccountContexts";
 
 export default function FloatingAction() {
   const router = useRouter();
-  const { user } = useUser();
+  const { account, loading } = useAccount();
 
-  const { data: account } = useQuery({
-    queryFn: () =>
-      getAccountByEmail(user?.primaryEmailAddress?.emailAddress || ""),
-    queryKey: ["account"],
-  });
+  if (loading || !account) return <Text>Loading account...</Text>;
 
-  const isAdmin = account?.role === "admin";
+  // const isAdmin = account?.role === "admin";
+  const isAdmin = true;
 
   if (!isAdmin) return null;
 
