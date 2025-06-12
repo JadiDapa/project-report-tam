@@ -1,6 +1,7 @@
-import { SafeAreaView, StatusBar } from "react-native";
 import SignInForm from "@/components/auth/sign-in/SignInForm";
 import SignInHeader from "@/components/auth/sign-in/SignInHeader";
+import { SafeAreaView } from "react-native-safe-area-context";
+// import { StatusBar } from "expo-status-bar";
 
 export default function SignIn() {
   return (

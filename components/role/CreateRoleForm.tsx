@@ -24,7 +24,6 @@ export default function CreateRoleForm() {
   const {
     control,
     handleSubmit,
-
     formState: { errors },
   } = useForm<z.infer<typeof roleSchema>>({
     resolver: zodResolver(roleSchema),
@@ -51,12 +50,6 @@ export default function CreateRoleForm() {
   });
 
   async function onSubmit(values: z.infer<typeof roleSchema>) {
-    //  const data = {
-    //    ...values,
-    //    Employees: selectedEmployees.map((account) => {
-    //      return { id: account };
-    //    }),
-    //  };
     OnCreateRole(values);
   }
 

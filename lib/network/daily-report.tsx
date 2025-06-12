@@ -1,5 +1,6 @@
 import { axiosInstance } from "./axiosInstance";
 import { DailyReportType, CreateDailyReportType } from "../types/daily-report";
+import * as FileSystem from "expo-file-system";
 
 export async function getAllDailyReports() {
   const { data } = await axiosInstance.get<{ data: DailyReportType[] }>(
@@ -22,19 +23,109 @@ export async function getDailyReportById(id: string) {
   return data.data;
 }
 
-export async function createDailyReport(values: CreateDailyReportType) {
-  const { data } = await axiosInstance.post("/daily-reports", values);
-
+export async function getDailyReportEvidences(
+  date: string,
+  getToken: () => Promise<string | null>
+) {
+  const token = await getToken();
+  const { data } = await axiosInstance.get<{ data: string }>(
+    `/daily-reports/generate-report/${date}`,
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
   return data.data;
+}
+
+export async function createDailyReport(values: CreateDailyReportType) {
+  const formData = new FormData();
+
+  formData.append("title", values.title);
+  formData.append("description", values.description || "");
+  formData.append("accountId", values.accountId as string);
+
+  if (values.DailyReportEvidences && values.DailyReportEvidences.length > 0) {
+    await Promise.all(
+      values.DailyReportEvidences.map(async (evidence: any, index: number) => {
+        const fileUri = evidence.image;
+        const fileInfo = await FileSystem.getInfoAsync(fileUri);
+
+        if (fileInfo.exists) {
+          const fileBlob = {
+            uri: fileUri,
+            type: evidence.mimeType || "image/jpeg",
+            name: evidence.fileName || `file_${index}.jpg`,
+          };
+
+          formData.append("DailyReportEvidences", fileBlob as any);
+        } else {
+          console.warn(`File not found: ${fileUri}`);
+        }
+      })
+    );
+  }
+
+  try {
+    const { data } = await axiosInstance.post("/daily-reports", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    return data.data;
+  } catch (error) {
+    console.error("Upload error:", error);
+    throw error;
+  }
 }
 
 export async function updateDailyReport(
   id: string,
   values: CreateDailyReportType
 ) {
-  const { data } = await axiosInstance.put("/daily-reports/" + id, values);
+  const formData = new FormData();
 
-  return data.data;
+  formData.append("title", values.title);
+  formData.append("description", values.description || "");
+  formData.append("accountId", values.accountId as string);
+
+  if (values.DailyReportEvidences && values.DailyReportEvidences.length > 0) {
+    await Promise.all(
+      values.DailyReportEvidences.map(async (evidence: any, index: number) => {
+        const fileUri = evidence.image;
+        const fileInfo = await FileSystem.getInfoAsync(fileUri);
+
+        if (fileInfo.exists) {
+          const fileBlob = {
+            uri: fileUri,
+            type: evidence.mimeType || "image/jpeg",
+            name: evidence.fileName || `file_${index}.jpg`,
+          };
+
+          formData.append("DailyReportEvidences", fileBlob as any);
+        } else {
+          console.warn(`File not found: ${fileUri}`);
+        }
+      })
+    );
+  }
+
+  try {
+    const { data } = await axiosInstance.post(
+      "/daily-reports/" + id,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    return data.data;
+  } catch (error) {
+    console.error("Upload error:", error);
+    throw error;
+  }
 }
 
 export async function deleteDailyReport(id: string) {

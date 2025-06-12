@@ -1,21 +1,14 @@
-import {
-  FlatList,
-  RefreshControl,
-  SafeAreaView,
-  StatusBar,
-  View,
-  Text,
-} from "react-native";
+import { FlatList, RefreshControl, View } from "react-native";
 import { useCallback, useEffect, useState } from "react";
-import FloatingAction from "@/components/tabs/home/FloatingAction";
-import ProjectHeader from "@/components/tabs/projects/ProjectHeader";
 import StatusSelect from "@/components/tabs/projects/StatusSelect";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "@clerk/clerk-expo";
 import { useQuery } from "@tanstack/react-query";
 import { getAllProjects } from "@/lib/network/project";
 import ProjectCard from "@/components/tabs/projects/ProjectCard";
 import SearchInput from "@/components/tabs/home/SearchInput";
 import TabScreenHeader from "@/components/tabs/TabScreenHeader";
+import { StatusBar } from "expo-status-bar";
 
 export default function Project() {
   const { getToken } = useAuth();
@@ -57,7 +50,8 @@ export default function Project() {
 
   return (
     <SafeAreaView className="relative flex-1 bg-primary-50">
-      <StatusBar backgroundColor="#2d52d2" />
+      <StatusBar style="light" backgroundColor="#2d52d2" />
+
       <TabScreenHeader title="Projects" />
       <View className="">
         <SearchInput query={projectQuery} setQuery={setProjectQuery} />

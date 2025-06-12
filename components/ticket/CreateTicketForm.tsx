@@ -10,8 +10,27 @@ import { CreateTicketType } from "@/lib/types/ticket";
 import FloatingInput from "../FloatingInput";
 import { useAccount } from "@/contexts/AccountContexts";
 
+const statuses = [
+  {
+    label: "Low",
+    value: "low",
+    bgColor: "bg-success-200 text-success-700 border-success-500",
+  },
+  {
+    label: "Medium",
+    value: "medium",
+    bgColor: "bg-warning-200 text-warning-700 border-warning-500",
+  },
+  {
+    label: "High",
+    value: "high",
+    bgColor: "bg-error-200 text-error-700 border-error-500",
+  },
+];
+
 const ticketSchema = z.object({
   title: z.string().min(1, "Ticket Name is required"),
+  status: z.enum(["low", "normal", "high"]).default("low"),
   description: z.string().min(1, "Description is required"),
   requester: z.number(),
 });
@@ -28,13 +47,14 @@ export default function CreateTicketForm() {
   const {
     control,
     handleSubmit,
-
+    watch,
     formState: { errors },
   } = useForm<z.infer<typeof ticketSchema>>({
     resolver: zodResolver(ticketSchema),
     defaultValues: {
       title: "",
       description: "",
+      status: "low",
       requester: account?.id,
     },
   });
@@ -55,6 +75,8 @@ export default function CreateTicketForm() {
       showToast("Error", "Failed To Create Ticket");
     },
   });
+
+  const status = watch("status");
 
   async function onSubmit(values: z.infer<typeof ticketSchema>) {
     OnCreateTicket(values);
@@ -81,6 +103,36 @@ export default function CreateTicketForm() {
               {errors.title.message}
             </Text>
           )}
+        </View>
+
+        {/* Priority Selection */}
+        <View className="relative px-6 mb-6">
+          <Text className=" font-cereal-regular">Priority</Text>
+          <View className="flex-row justify-between">
+            {statuses.map((item) => (
+              <Controller
+                key={item.value}
+                control={control}
+                name="status"
+                render={({ field }) => (
+                  <Pressable
+                    onPress={() => field.onChange(item.value)}
+                    className={`items-center justify-center border-slate-300 border h-12 px-3 py-2 mt-3 w-28 rounded-xl ${
+                      status === item.value ? item.bgColor : "bg-white "
+                    }`}
+                  >
+                    <Text
+                      className={`font-cereal-medium ${
+                        status === item.value ? item.bgColor : "text-slate-500"
+                      }`}
+                    >
+                      {item.label}
+                    </Text>
+                  </Pressable>
+                )}
+              />
+            ))}
+          </View>
         </View>
 
         {/* Ticket Full Name */}

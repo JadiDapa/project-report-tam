@@ -23,6 +23,8 @@ import { pickImage, takePhoto } from "@/lib/image-options";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateAccount } from "@/lib/network/account";
 import { useCustomToast } from "@/lib/useToast";
+import { router } from "expo-router";
+import { useAccount } from "@/contexts/AccountContexts";
 
 export default function ProfileInfo({ account }: { account: AccountType }) {
   const [showActionsheet, setShowActionsheet] = useState(false);
@@ -30,6 +32,7 @@ export default function ProfileInfo({ account }: { account: AccountType }) {
 
   const { showToast } = useCustomToast();
   const queryClient = useQueryClient();
+  const { refetch } = useAccount();
 
   const handleClose = () => setShowActionsheet(false);
 
@@ -37,12 +40,14 @@ export default function ProfileInfo({ account }: { account: AccountType }) {
     mutationFn: (values: CreateAccountType) =>
       updateAccount(account.id.toString(), values),
     onSuccess: () => {
-      showToast("Success", "Project Report Added Successfully");
-      queryClient.invalidateQueries({ queryKey: ["accounts", account.id] });
+      showToast("Success", "Profile Image Updated Successfully");
+      queryClient.invalidateQueries({ queryKey: ["accounts", account.email] });
+      refetch();
     },
+
     onError: (err) => {
-      console.log(err);
-      showToast("Error", err?.message || "Failed To Create Report");
+      console.log("Upload Error", JSON.stringify(err, null, 2));
+      showToast("Error", err?.message || "Failed To Update Your Profile Image");
     },
   });
 
@@ -73,7 +78,7 @@ export default function ProfileInfo({ account }: { account: AccountType }) {
             source={{
               uri:
                 account.image ||
-                "https://cdn.vectorstock.com/i/500p/08/19/gray-photo-placeholder-icon-design-ui-vector-35850819.jpg",
+                "https://st3.depositphotos.com/6672868/13701/v/450/depositphotos_137014128-stock-illustration-user-profile-icon.jpg",
             }}
             className="object-cover object-center w-full h-full"
           />
@@ -133,12 +138,15 @@ export default function ProfileInfo({ account }: { account: AccountType }) {
           </Actionsheet>
         </Pressable>
         <View className="gap-1">
-          <View className="flex-row items-center gap-2">
+          <Pressable
+            onPress={() => router.push(`/profile/edit/[${account.id}]`)}
+            className="flex-row items-center gap-2"
+          >
             <Text className="text-2xl font-cereal-medium">
               {account.fullname}
             </Text>
             <Pencil size={16} color={"#555"} />
-          </View>
+          </Pressable>
 
           <View className="flex-row items-center self-start gap-2 px-3 py-1 rounded-lg bg-primary-100">
             <User size={14} strokeWidth={2} color={"blue"} />
@@ -152,7 +160,7 @@ export default function ProfileInfo({ account }: { account: AccountType }) {
         <View className="flex-row items-center gap-3 px-3 py-1 rounded-lg">
           <Phone size={16} color={"#555"} />
           <Text className="text-slate-600 font-cereal-medium">
-            +62 812 3284 0475
+            {"+62" + account.phoneNumber || "No Phone Number Provided"}
           </Text>
         </View>
         <View className="flex-row items-center gap-3 px-3 py-1 rounded-lg">

@@ -15,7 +15,7 @@ interface ReportDiscussionProps {
 }
 
 const socket = io(process.env.EXPO_PUBLIC_BASE_API_URL_SOCKET, {
-  autoConnect: false, // Prevents auto-connecting on every re-render
+  autoConnect: false,
 });
 
 export default function ReportDiscussion({

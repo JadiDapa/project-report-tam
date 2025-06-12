@@ -1,6 +1,7 @@
-import { View, Text } from "react-native";
+import { View, Text, Image, Pressable } from "react-native";
 import Feather from "@expo/vector-icons/Feather";
 import { useAccount } from "@/contexts/AccountContexts";
+import { router } from "expo-router";
 
 export default function HomeHeader() {
   const { account, loading } = useAccount();
@@ -19,13 +20,26 @@ export default function HomeHeader() {
         </Text>
       </View>
       <View className="flex flex-row items-center gap-4">
-        <View className="items-center justify-center border border-white rounded-full size-10 ">
+        <Pressable
+          onPress={() => router.push("/notification")}
+          className="items-center justify-center border border-white rounded-full size-10 "
+        >
           <Feather name="bell" size={24} color="#ffffff" />
-        </View>
+        </Pressable>
 
-        <View className="items-center justify-center border border-white rounded-full size-10 ">
-          <Text className="text-white font-cereal-bold">DP</Text>
-        </View>
+        <Pressable
+          onPress={() => router.push("/profile")}
+          className="relative items-center justify-center overflow-hidden border border-white rounded-full size-10 "
+        >
+          <Image
+            source={{
+              uri:
+                account?.image ||
+                "https://st3.depositphotos.com/6672868/13701/v/450/depositphotos_137014128-stock-illustration-user-profile-icon.jpg",
+            }}
+            className="object-cover object-center w-full h-full"
+          />
+        </Pressable>
       </View>
     </View>
   );

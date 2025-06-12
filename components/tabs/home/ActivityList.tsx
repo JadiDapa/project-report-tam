@@ -2,7 +2,6 @@ import { useRouter } from "expo-router";
 import { View, Text, FlatList, Pressable } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { getAllDailyReports } from "@/lib/network/daily-report";
-import DailyReportCard from "@/components/daily-report/DailyReportCard";
 import { format } from "date-fns";
 
 export default function reportList() {
@@ -53,7 +52,7 @@ export default function reportList() {
                 </Text>
 
                 <Text className="text-sm text-primary-500 font-cereal-medium">
-                  {report.ReportEvidences.length} Evidences
+                  {report.DailyReportEvidences.length} Evidences
                 </Text>
               </View>
             </View>

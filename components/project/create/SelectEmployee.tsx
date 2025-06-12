@@ -76,7 +76,7 @@ export default function SelectEmployee({
         keyExtractor={(employee) => employee.id.toString()}
         renderItem={({ item: employee }) => (
           <View className="items-center justify-start w-20 me-1 rounded-xl">
-            <View className="items-center justify-center rounded-full bg-primary-300 size-16">
+            <View className="relative items-center justify-center overflow-hidden rounded-full bg-primary-300 size-16">
               {employee.image ? (
                 <Image
                   src={employee.image}

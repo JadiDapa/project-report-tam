@@ -9,7 +9,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createReportDiscussion } from "@/lib/network/report-discussion";
 import { useAuth } from "@clerk/clerk-expo";
 import { CreateReportDiscussionType } from "@/lib/types/report-discussion";
-import { io } from "socket.io-client";
+import { socket } from "@/app/(root)/ticket/[id]";
 
 const discussionSchema = z.object({
   content: z.string().min(3, "Title must be at least 3 characters"),
@@ -19,8 +19,6 @@ interface DiscussionInputProps {
   reportId: number;
   accountId: number;
 }
-
-const socket = io(process.env.EXPO_PUBLIC_BASE_API_URL_SOCKET);
 
 export default function DiscussionInput({
   reportId,
@@ -87,11 +85,14 @@ export default function DiscussionInput({
                 placeholder="Report Title"
                 value={field.value}
                 onChangeText={field.onChange}
-                onContentSizeChange={(e) => {
+                onContentSizeChange={(e: {
+                  nativeEvent: { contentSize: { height: any } };
+                }) => {
                   const newHeight = e.nativeEvent.contentSize.height;
                   setHeight((prev) => Math.max(40, newHeight));
                 }}
-                onKeyPress={({ nativeEvent }) => {
+                onKeyPress={(e: any) => {
+                  const nativeEvent = e.nativeEvent;
                   if (nativeEvent.key === "Enter") {
                     setHeight((prev) => prev + 20); // Manually expand on Enter
                   }

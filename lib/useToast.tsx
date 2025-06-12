@@ -9,8 +9,7 @@ export const useCustomToast = () => {
   const toast = useToast();
 
   const showToast = (title: string, description: string, duration = 3000) => {
-    const toastId = Math.random(); // Generate a unique ID
-
+    const toastId = `toast-${Math.random().toString(36).substr(2, 9)}`; // Generate a unique string
     if (!toast.isActive(toastId)) {
       toast.show({
         id: toastId,

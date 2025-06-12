@@ -1,6 +1,5 @@
 import LoadingScreen from "@/components/LoadingScreen";
 import ProgressReports from "@/components/project/detail/ProgressReports";
-import ProjectDetailHeader from "@/components/project/detail/ProjectDetailHeader";
 import ProjectEmployees from "@/components/project/detail/ProjectEmployees";
 import ProjectInfo from "@/components/project/detail/ProjectInfo";
 import StackScreenHeader from "@/components/StackScreenHeader";
@@ -33,15 +32,20 @@ export default function ProjectDetail() {
             <StatusBar backgroundColor="#2d52d2" />
             <StackScreenHeader title="Project Detail" />
             <ProjectInfo
+              id={project?.id}
               title={project?.title}
               description={project?.description}
               startDate={format(project.startDate, "MMM, dd yyyy")}
               endDate={format(project.endDate, "MMM, dd yyyy")}
             />
-            <ProjectEmployees employees={project?.Employees} />
+            <ProjectEmployees
+              employees={project?.Employees}
+              isModifiable={false}
+            />
           </>
         }
       />
+
       <View className="absolute bottom-0 w-full px-6 py-4 bg-white border-t shadow-md border-slate-200">
         <Pressable
           onPress={() => {

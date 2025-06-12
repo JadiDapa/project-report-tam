@@ -3,14 +3,17 @@ import { View, Text, Pressable } from "react-native";
 import React, { useState } from "react";
 import { Icon } from "@/components/ui/icon";
 import {
-  BriefcaseBusiness,
   CalendarDaysIcon,
   ChevronDown,
   ChevronUp,
   Cog,
+  Pencil,
 } from "lucide-react-native";
+import { router } from "expo-router";
+import { useAccount } from "@/contexts/AccountContexts";
 
 interface ProjectInfoProps {
+  id: number;
   title: string;
   description?: string;
   startDate: string;
@@ -18,12 +21,19 @@ interface ProjectInfoProps {
 }
 
 export default function ProjectInfo({
+  id,
   title,
   description,
   startDate,
   endDate,
 }: ProjectInfoProps) {
   const [moreDetail, setMoreDetail] = useState(false);
+  const { account } = useAccount();
+
+  const isAdmin = account?.Role?.Features?.some((feature) => {
+    return feature.name === "Manage Project";
+  });
+
   return (
     <View className="">
       <View className="px-6 py-6 bg-white">
@@ -39,9 +49,23 @@ export default function ProjectInfo({
           #PR-060525-0001
         </Text>
 
-        <Text className="mt-4 text-lg leading-tight text-center font-cereal-medium">
-          {title}
-        </Text>
+        <View className="flex flex-row items-center justify-center gap-2 mt-6">
+          <Text className="text-lg leading-tight text-center font-cereal-medium">
+            {title}
+          </Text>
+          {isAdmin && (
+            <Pressable
+              onPress={() =>
+                router.push({
+                  pathname: "/project/update/[id]",
+                  params: { id: id },
+                })
+              }
+            >
+              <Pencil size={14} color={"#4459ff"} />
+            </Pressable>
+          )}
+        </View>
       </View>
 
       <View className="px-6 py-6 mt-4 bg-white ">

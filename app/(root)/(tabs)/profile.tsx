@@ -1,8 +1,10 @@
-import { SafeAreaView, ScrollView, StatusBar, Text } from "react-native";
+import { Text } from "react-native";
 import ProfileInfo from "@/components/tabs/profile/ProfileInfo";
 import ProfileMenu from "@/components/tabs/profile/ProfileMenu";
 import { useAccount } from "@/contexts/AccountContexts";
 import TabScreenHeader from "@/components/tabs/TabScreenHeader";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { StatusBar } from "expo-status-bar";
 
 export const profileMenu = ["general", "friends", "achievements"];
 

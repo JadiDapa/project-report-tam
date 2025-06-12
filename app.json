@@ -17,8 +17,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/logo.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/images/app-icon.png"
       },
       "softwareKeyboardLayoutMode": "pan",
       "package": "com.jadidapa.projectreporttam"
@@ -38,7 +37,10 @@
           "resizeMode": "contain",
           "backgroundColor": "#5371da"
         }
-      ]
+      ],
+      "expo-font",
+      "expo-secure-store",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true

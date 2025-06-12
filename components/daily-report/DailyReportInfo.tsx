@@ -1,13 +1,22 @@
-import { View, Text } from "react-native";
-import { PanelLeftClose, PanelRightClose } from "lucide-react-native";
+import { View, Text, Pressable } from "react-native";
+import { PanelLeftClose, PanelRightClose, Pencil } from "lucide-react-native";
 import { DailyReportType } from "@/lib/types/daily-report";
 import { format } from "date-fns";
+import { useAccount } from "@/contexts/AccountContexts";
+import { router } from "expo-router";
 
 interface DailyReportInfoProps {
   dailyReport: DailyReportType;
 }
 
 export default function DailyReportInfo({ dailyReport }: DailyReportInfoProps) {
+  const { account } = useAccount();
+
+  const isOwner = account?.id === dailyReport.Account.id;
+  const isManager = account?.Role?.Features?.some((feature) => {
+    return feature.name === "Manage Daily Report";
+  });
+
   return (
     <View className="relative flex-1">
       <View className="px-6 py-6 bg-white">
@@ -26,6 +35,23 @@ export default function DailyReportInfo({ dailyReport }: DailyReportInfoProps) {
         <Text className="mt-4 text-lg leading-tight text-center font-cereal-medium">
           {dailyReport.title}
         </Text>
+        {isOwner && isManager && (
+          <Pressable
+            onPress={() =>
+              router.push({
+                pathname: "/daily-report/update/[id]",
+                params: { id: dailyReport.id },
+              })
+            }
+            className="flex flex-row items-center justify-center gap-2 mt-6"
+          >
+            <Text className="text-lg leading-tight text-center text-primary-500 font-cereal-medium">
+              Modify
+            </Text>
+
+            <Pencil size={14} color={"#4459ff"} />
+          </Pressable>
+        )}
       </View>
 
       <View className="flex flex-row justify-between px-6 py-6 mt-4 bg-white">
@@ -42,7 +68,7 @@ export default function DailyReportInfo({ dailyReport }: DailyReportInfoProps) {
             Evidences
           </Text>
           <Text className=" font-cereal-medium text-end">
-            {dailyReport.ReportEvidences.length || "No Evidence"}
+            {dailyReport.DailyReportEvidences.length || "No Evidence"}
           </Text>
         </View>
       </View>

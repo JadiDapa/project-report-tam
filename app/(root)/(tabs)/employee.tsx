@@ -1,19 +1,13 @@
-import {
-  FlatList,
-  RefreshControl,
-  SafeAreaView,
-  StatusBar,
-  View,
-} from "react-native";
+import { FlatList, RefreshControl, View } from "react-native";
 import React, { useCallback, useEffect, useState } from "react";
-import FloatingAction from "@/components/tabs/home/FloatingAction";
 import SearchInput from "@/components/tabs/home/SearchInput";
 import { useQuery } from "@tanstack/react-query";
 import { getAllAccounts } from "@/lib/network/account";
 import EmployeeRoleSelect from "@/components/tabs/employee/EmployeeRoleSelect";
 import EmployeeCard from "@/components/tabs/employee/EmployeeCard";
-import EmployeeHeader from "@/components/tabs/employee/EmployeeHeader";
 import TabScreenHeader from "@/components/tabs/TabScreenHeader";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { StatusBar } from "expo-status-bar";
 
 export default function Employee() {
   const [refreshing, setRefreshing] = useState(false);
@@ -57,22 +51,23 @@ export default function Employee() {
       <StatusBar backgroundColor="#2d52d2" />
       <TabScreenHeader title="Employees" />
 
-      <View className="">
-        <SearchInput query={accountQuery} setQuery={setAccountQuery} />
-        <EmployeeRoleSelect
-          selectedRole={selectedRole}
-          setSelectedRole={setSelectedRole}
-        />
-
-        <FlatList
-          data={filteredAccounts}
-          keyExtractor={(account) => account.id.toString()}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }
-          renderItem={({ item: account }) => <EmployeeCard account={account} />}
-        />
-      </View>
+      <FlatList
+        data={filteredAccounts}
+        keyExtractor={(account) => account.id.toString()}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+        ListHeaderComponent={
+          <>
+            <SearchInput query={accountQuery} setQuery={setAccountQuery} />
+            <EmployeeRoleSelect
+              selectedRole={selectedRole}
+              setSelectedRole={setSelectedRole}
+            />
+          </>
+        }
+        renderItem={({ item: account }) => <EmployeeCard account={account} />}
+      />
     </SafeAreaView>
   );
 }

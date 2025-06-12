@@ -1,5 +1,6 @@
 import { axiosInstance } from "./axiosInstance";
 import { TicketType, CreateTicketType } from "../types/ticket";
+import { CreateTicketMessageType } from "../types/ticket-message";
 
 export async function getAllTickets() {
   const { data } = await axiosInstance.get<{ data: TicketType[] }>("/tickets");
@@ -29,6 +30,15 @@ export async function getTicketById(id: string) {
 
 export async function createTicket(values: CreateTicketType) {
   const { data } = await axiosInstance.post("/tickets", values);
+
+  return data.data;
+}
+
+export async function createTicketMessage(
+  id: string,
+  values: CreateTicketMessageType
+) {
+  const { data } = await axiosInstance.post("/tickets/" + id, values);
 
   return data.data;
 }

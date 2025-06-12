@@ -12,18 +12,20 @@ import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { X } from "lucide-react-native";
-
 import LoadingScreen from "@/components/LoadingScreen";
 import StackScreenHeader from "@/components/StackScreenHeader";
 import TicketInfo from "@/components/ticket/TicketInfo";
 import TicketResponse from "@/components/ticket/TicketResponse";
-import { getTicketById, updateTicket } from "@/lib/network/ticket";
+import { createTicketMessage, getTicketById } from "@/lib/network/ticket";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod";
 import { CreateTicketType } from "@/lib/types/ticket";
 import { useCustomToast } from "@/lib/useToast";
 import { useAccount } from "@/contexts/AccountContexts";
+import TicketMessages from "@/components/ticket/TicketMessages";
+import { CreateTicketMessageType } from "@/lib/types/ticket-message";
+import { io } from "socket.io-client";
 
 if (
   Platform.OS === "android" &&
@@ -32,20 +34,25 @@ if (
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-export const ticketSchema = z.object({
-  response: z.string(),
+export const ticketMessageSchema = z.object({
+  content: z.string().min(1, "Content is required"),
+  image: z.string().optional(),
+  ticketId: z.number().min(1, "Ticket ID is required"),
+  accountId: z.number().min(1, "Account ID is required"),
 });
+
+export const socket = io(process.env.EXPO_PUBLIC_BASE_API_URL_SOCKET);
 
 export default function TicketDetail() {
   const [isResponsing, setIsResponsing] = useState(false);
 
   const { id } = useLocalSearchParams();
   const { showToast } = useCustomToast();
-  const { account } = useAccount();
 
   const scrollRef = useRef<ScrollView>(null);
   const queryClient = useQueryClient();
-  const router = useRouter();
+
+  const { account } = useAccount();
 
   const { data: ticket } = useQuery({
     queryFn: () => getTicketById(id as string),
@@ -70,39 +77,38 @@ export default function TicketDetail() {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm<z.infer<typeof ticketSchema>>({
-    resolver: zodResolver(ticketSchema),
-    values: {
-      response: "",
+  } = useForm<z.infer<typeof ticketMessageSchema>>({
+    resolver: zodResolver(ticketMessageSchema),
+    defaultValues: {
+      content: "",
+      image: "",
+      ticketId: Number(id),
+      accountId: account?.id || 0,
     },
   });
 
-  const { mutate: OnCreateTicket, isPending } = useMutation({
-    mutationFn: (values: Partial<CreateTicketType>) =>
-      updateTicket(ticket!.id.toString(), values),
-
+  const { mutate: onCreateTicketMessage, isPending } = useMutation({
+    mutationFn: (values: CreateTicketMessageType) =>
+      createTicketMessage(ticket!.id.toString(), values),
     onSuccess: () => {
-      showToast("Success", "Ticket Updated Successfully");
-      queryClient.invalidateQueries({ queryKey: ["tickets"] });
-      router.push({
-        pathname: "/ticket",
-      });
+      showToast("Success", "Meesage Sent Successfully");
+      queryClient.invalidateQueries({ queryKey: ["tickets", ticket?.id] });
     },
 
     onError: (err) => {
       console.log(err);
-      showToast("Error", "Failed To Update The Ticket");
+      showToast("Error", "Failed To Send The Message");
     },
   });
 
-  async function onSubmit(values: z.infer<typeof ticketSchema>) {
-    OnCreateTicket({ ...values, status: "processed", handler: account?.id });
+  function onSubmit(values: z.infer<typeof ticketMessageSchema>) {
+    onCreateTicketMessage(values, {
+      onSuccess: (saved) => {
+        socket.emit("send_message", saved); // broadcast real-time to others
+      },
+    });
+    toggleResponding(false);
   }
-
-  async function onFinish(values: z.infer<typeof ticketSchema>) {
-    OnCreateTicket({ ...values, status: "completed" });
-  }
-
   if (!ticket) return <LoadingScreen />;
 
   return (
@@ -115,11 +121,12 @@ export default function TicketDetail() {
         contentContainerStyle={{ paddingBottom: 100 }}
       >
         <TicketInfo ticket={ticket} />
+        <TicketMessages messages={ticket?.TicketMessages} />
         {isResponsing && <TicketResponse control={control} errors={errors} />}
       </ScrollView>
 
       <View className="absolute bottom-0 w-full px-6 py-4 bg-white border-t shadow-md border-slate-200">
-        {ticket.status === "sent" && !isResponsing && (
+        {ticket.status === "open" && !isResponsing && (
           <Pressable onPress={() => toggleResponding(true)}>
             <Text className="px-6 py-4 text-lg text-center text-white rounded-md shadow-lg font bg-primary-500 font-cereal-medium shadow-primary-500/50">
               Handle Ticket
@@ -127,7 +134,7 @@ export default function TicketDetail() {
           </Pressable>
         )}
 
-        {ticket.status === "sent" && isResponsing && (
+        {ticket.status === "open" && isResponsing && (
           <View className="flex flex-row items-center gap-2">
             <Pressable
               onPress={handleSubmit(onSubmit)}
@@ -144,14 +151,6 @@ export default function TicketDetail() {
               </View>
             </Pressable>
           </View>
-        )}
-
-        {ticket.status === "processed" && (
-          <Pressable onPress={handleSubmit(onFinish)} disabled={isPending}>
-            <Text className="px-6 py-4 text-lg text-center text-white rounded-md shadow-lg font bg-primary-500 font-cereal-medium shadow-primary-500/50">
-              Check As Finished
-            </Text>
-          </Pressable>
         )}
       </View>
     </View>

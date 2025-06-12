@@ -48,7 +48,7 @@ export default function CreateDailyReportForm() {
     onSuccess: () => {
       showToast("Success", "New DailyReport Created Successfully");
       queryClient.invalidateQueries({ queryKey: ["dailyReports"] });
-      router.push("/role/create");
+      router.push(`/daily-report/account/${account?.id}`);
     },
 
     onError: (err) => {
@@ -58,7 +58,13 @@ export default function CreateDailyReportForm() {
   });
 
   async function onSubmit(values: z.infer<typeof dailyReportSchema>) {
-    OnCreateDailyReport(values);
+    if (account) {
+      OnCreateDailyReport({
+        ...values,
+        accountId: account.id,
+        DailyReportEvidences: uploadedEvidences,
+      });
+    }
   }
 
   return (

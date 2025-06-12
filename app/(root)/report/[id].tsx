@@ -8,7 +8,6 @@ import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { SafeAreaView, ScrollView, StatusBar } from "react-native";
 import LoadingScreen from "@/components/LoadingScreen";
-import ReportDiscussion from "@/components/report/detail/ReportDiscussion";
 import StackScreenHeader from "@/components/StackScreenHeader";
 
 export default function ReportDetail() {
@@ -17,8 +16,6 @@ export default function ReportDetail() {
   const { id } = useLocalSearchParams();
 
   const { getToken } = useAuth();
-
-  console.log(getToken);
 
   const { data: report } = useQuery({
     queryFn: () => getReportById(id as string, getToken),
@@ -30,8 +27,6 @@ export default function ReportDetail() {
       setUploadedEvidences(report.ReportEvidences);
     }
   }, [report]);
-
-  console.log(report);
 
   if (!report) return <LoadingScreen />;
 

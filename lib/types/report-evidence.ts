@@ -6,9 +6,12 @@ export interface CreateReportEvidenceType {
 }
 
 export interface ReportEvidenceType extends CreateReportEvidenceType {
-  id: number;
-  reportId: number;
-  Report: ReportType;
-  createdAt: Date;
-  updatedAt: Date;
+  location?: {
+    coords: {
+      latitude: number;
+      longitude: number;
+    };
+    address?: string;
+  };
+  date?: string;
 }

@@ -1,10 +1,11 @@
 import { AccountType } from "./account";
-import { ReportEvidenceType } from "./report-evidence";
+import { DailyReportEvidenceType } from "./daily-report-evidence.";
 
 export interface CreateDailyReportType {
   title: string;
   description?: string;
-  accountId: number;
+  accountId: number | string;
+  DailyReportEvidences: DailyReportEvidenceType[];
 }
 
 export interface DailyReportType extends CreateDailyReportType {
@@ -12,5 +13,4 @@ export interface DailyReportType extends CreateDailyReportType {
   Account: AccountType;
   createdAt: Date;
   updatedAt: Date;
-  ReportEvidences: ReportEvidenceType[];
 }

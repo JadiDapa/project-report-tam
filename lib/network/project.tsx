@@ -57,6 +57,18 @@ export async function getProjectReportEvidences(
   return data.data;
 }
 
+export async function notifyEmployees(
+  projectId: number,
+  employeeIds: number[]
+) {
+  const response = await axiosInstance.post(`/notifications/send`, {
+    projectId,
+    employeeIds,
+  });
+
+  return response.data;
+}
+
 // Create a project
 export async function createProject(
   values: CreateProjectType,

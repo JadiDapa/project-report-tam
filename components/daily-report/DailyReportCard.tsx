@@ -35,7 +35,7 @@ export default function DailyReportCard({
             </Text>
 
             <Text className="text-sm text-primary-500 font-cereal-medium">
-              {report.ReportEvidences.length} Evidences
+              {report.DailyReportEvidences.length} Evidences
             </Text>
           </View>
         </View>

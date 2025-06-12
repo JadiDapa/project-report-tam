@@ -5,12 +5,9 @@ import MenuShortcut from "@/components/tabs/home/MenuShortcut";
 import ProjectList from "@/components/tabs/home/ProjectList";
 import UserList from "@/components/tabs/home/UserList";
 import { useCallback, useState } from "react";
-import {
-  RefreshControl,
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-} from "react-native";
+import { RefreshControl, ScrollView } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { StatusBar } from "expo-status-bar";
 
 export default function Home() {
   const [refreshing, setRefreshing] = useState(false);
@@ -24,15 +21,13 @@ export default function Home() {
   }, []);
 
   return (
-    <SafeAreaView className="flex-1 bg-primary-50">
-      <StatusBar backgroundColor="#2d52d2" />
-
+    <SafeAreaView className="flex-1 bg-primary-50" edges={["top"]}>
+      <StatusBar style="light" backgroundColor="#2d52d2" />
       <ScrollView
+        contentContainerStyle={{ paddingBottom: 120 }}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
-        className="flex-1"
-        contentContainerStyle={{ paddingBottom: 120 }}
       >
         <HomeHeader />
         <HomeSearchInput query={query} setQuery={setQuery} />

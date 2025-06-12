@@ -9,10 +9,21 @@
       "distribution": "internal"
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      }
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_test_cG9saXRlLWdyb3VzZS01OS5jbGVyay5hY2NvdW50cy5kZXYk",
+        "EXPO_PUBLIC_BASE_API_URL": "https://be.jadidapa.com/api",
+        "EXPO_PUBLIC_BASE_API_URL_SOCKET": "https://be.jadidapa.com"
+      }
     }
   },
   "submit": {

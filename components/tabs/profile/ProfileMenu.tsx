@@ -1,3 +1,4 @@
+import { useAccount } from "@/contexts/AccountContexts";
 import { useClerk } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
 import {
@@ -12,33 +13,34 @@ import {
 } from "lucide-react-native";
 import { View, Text, Pressable } from "react-native";
 
-const menu = [
-  {
-    title: "Projects",
-    Icon: Heart,
-    link: "",
-  },
-  {
-    title: "Daily Reports",
-    Icon: CreditCard,
-    link: "",
-  },
-  {
-    title: "Ticket",
-    Icon: Tickets,
-    link: "",
-  },
-
-  {
-    title: "Setting",
-    Icon: Settings,
-    link: "",
-  },
-];
-
 export default function ProfileMenu() {
   const { signOut } = useClerk();
   const router = useRouter();
+  const { account } = useAccount();
+
+  const menu = [
+    {
+      title: "Projects",
+      Icon: Heart,
+      link: `/project/account/${account?.id}`,
+    },
+    {
+      title: "Daily Reports",
+      Icon: CreditCard,
+      route: `/daily-report/account/${account?.id}`,
+    },
+    {
+      title: "Ticket",
+      Icon: Tickets,
+      route: `/ticket/requester/${account?.id}`,
+    },
+
+    {
+      title: "Setting",
+      Icon: Settings,
+      link: "",
+    },
+  ];
 
   async function handleSignOut() {
     try {
@@ -54,6 +56,12 @@ export default function ProfileMenu() {
       <View className="py-4">
         {menu.map((item) => (
           <Pressable
+            onPress={() =>
+              router.push({
+                pathname:
+                  item.link as (typeof router.push.arguments)[0]["pathname"],
+              })
+            }
             key={item.title}
             className="flex-row items-center gap-4 px-6 py-4 "
           >

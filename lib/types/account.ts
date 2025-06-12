@@ -9,6 +9,7 @@ export interface CreateAccountType {
   email: string;
   roleId: number;
   image?: string;
+  phoneNumber?: string;
 }
 
 export interface AccountType extends CreateAccountType {

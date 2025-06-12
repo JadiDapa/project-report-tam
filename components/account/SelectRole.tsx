@@ -32,8 +32,6 @@ export default function SelectRole({ value, onChange }: SelectRoleProps) {
     queryKey: ["roles"],
   });
 
-  console.log(roles);
-
   return (
     <Pressable onPress={() => setShowActionsheet(true)}>
       <View className="relative w-full px-5 py-5 border border-gray-300 rounded-md">

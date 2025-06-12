@@ -24,7 +24,7 @@ export default function DailyStatus() {
         backgroundColor="#c8cfd6"
         rotation={0}
       >
-        {(fill) => (
+        {(fill: number) => (
           <Text className="text-white font-cereal">{Math.round(fill)}%</Text>
         )}
       </AnimatedCircularProgress>

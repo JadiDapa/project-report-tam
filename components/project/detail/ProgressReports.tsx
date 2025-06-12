@@ -5,6 +5,7 @@ import {
   FlatList,
   Platform,
   Linking,
+  Alert,
 } from "react-native";
 import React, { ReactElement } from "react";
 import { Download, MessageCircleX, Plus } from "lucide-react-native";
@@ -39,67 +40,95 @@ export default function ProgressReports({
   const isEmployee = true;
 
   const downloadFile = async () => {
-    const evidence = await getProjectReportEvidences(
-      project.id.toString(),
-      getToken
-    );
+    try {
+      const evidence = await getProjectReportEvidences(
+        project.id.toString(),
+        getToken
+      );
 
-    if (!evidence) {
-      throw new Error("File URL is missing.");
+      if (!evidence) {
+        throw new Error("File URL is missing.");
+      }
+
+      const filename = project.title + ".docx";
+      const mimetype =
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+
+      const result = await FileSystem.downloadAsync(
+        evidence,
+        FileSystem.documentDirectory + filename
+      );
+      console.log("Downloaded file:", result);
+
+      save(result.uri, filename, mimetype);
+    } catch (error) {
+      console.error("Download error:", error);
+      Alert.alert(
+        "Error",
+        error instanceof Error ? error.message : "An unknown error occurred."
+      );
     }
-    const filename = project.title + ".pdf";
-    const result = await FileSystem.downloadAsync(
-      evidence,
-      FileSystem.documentDirectory + filename
-    );
-    console.log(result);
-
-    save(result.uri, filename, result.headers["Content-Type"]);
   };
+
   const save = async (uri: string, filename: string, mimetype: string) => {
     if (Platform.OS === "android") {
       const permissions =
         await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
-      if (permissions.granted) {
+
+      if (!permissions.granted || !permissions.directoryUri) {
+        Alert.alert("Permission Denied", "No directory selected.");
+        shareAsync(uri);
+        return;
+      }
+
+      try {
+        console.log("Reading base64...");
         const base64 = await FileSystem.readAsStringAsync(uri, {
           encoding: FileSystem.EncodingType.Base64,
         });
 
-        try {
-          const fileUri =
-            await FileSystem.StorageAccessFramework.createFileAsync(
-              permissions.directoryUri,
-              filename,
-              mimetype
-            );
-          await FileSystem.writeAsStringAsync(fileUri, base64, {
-            encoding: FileSystem.EncodingType.Base64,
-          });
+        console.log("Creating file...");
+        const fileUri = await FileSystem.StorageAccessFramework.createFileAsync(
+          permissions.directoryUri,
+          filename,
+          mimetype
+        );
 
-          // Open the saved file
-          openFile(fileUri);
-        } catch (e) {
-          console.log("Error saving file:", e);
-        }
-      } else {
-        shareAsync(uri);
+        console.log("Writing file...");
+        await FileSystem.writeAsStringAsync(fileUri, base64, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+
+        console.log("Saved to:", fileUri);
+        openFile(fileUri, mimetype);
+      } catch (e) {
+        console.error("Error saving file:", e);
+        Alert.alert("Error", "Failed to save the file.");
       }
     } else {
       shareAsync(uri);
     }
   };
 
-  const openFile = async (fileUri: string) => {
+  const openFile = async (fileUri: string, mimetype: string) => {
     if (Platform.OS === "android") {
-      IntentLauncher.startActivityAsync("android.intent.action.VIEW", {
-        data: fileUri,
-        flags: 1,
-        type: "application/pdf", // Change based on file type
-      }).catch((err) => console.log("Error opening file:", err));
+      try {
+        await IntentLauncher.startActivityAsync("android.intent.action.VIEW", {
+          data: fileUri,
+          flags: 1,
+          type: mimetype,
+        });
+      } catch (err) {
+        console.error("Error opening file:", err);
+        Alert.alert("Error", "No app found to open this file.");
+      }
     } else {
-      Linking.openURL(fileUri).catch((err) =>
-        console.log("Error opening file:", err)
-      );
+      try {
+        await Linking.openURL(fileUri);
+      } catch (err) {
+        console.error("Error opening file:", err);
+        Alert.alert("Error", "Could not open file.");
+      }
     }
   };
 

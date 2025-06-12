@@ -1,10 +1,11 @@
 import { AccountType } from "./account";
+import { TicketMessageType } from "./ticket-message";
 
 export interface CreateTicketType {
   title: string;
   description?: string;
-  response?: string;
   status?: string;
+  priority?: string;
   requester: number;
   handler?: number;
 }
@@ -14,6 +15,7 @@ export interface TicketType extends CreateTicketType {
   code: string;
   Requester: AccountType;
   Handler?: AccountType;
+  TicketMessages?: TicketMessageType[];
   createdAt: Date;
   updatedAt: Date;
 }

@@ -1,42 +1,37 @@
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  ReactNode,
-} from "react";
+import { createContext, useContext, ReactNode } from "react";
 import { useUser } from "@clerk/clerk-expo";
 import { getAccountByEmail } from "@/lib/network/account";
 import { AccountType } from "@/lib/types/account";
 import { Redirect } from "expo-router";
 
 interface AccountContextType {
-  account: AccountType | null;
+  account?: AccountType | null;
   loading: boolean;
+  refetch: () => void;
 }
-
 const AccountContext = createContext<AccountContextType | null>(null);
+
+import { useQuery } from "@tanstack/react-query";
 
 export function AccountProvider({ children }: { children: ReactNode }) {
   const { user, isLoaded } = useUser();
   const userEmail = user?.primaryEmailAddress?.emailAddress || "";
-  const [account, setAccount] = useState<AccountType | null>(null);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (userEmail) {
-      getAccountByEmail(userEmail).then((data) => {
-        setAccount(data);
-        setLoading(false);
-      });
-    }
-  }, [userEmail]);
+  const {
+    data: account,
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ["account", userEmail],
+    queryFn: () => getAccountByEmail(userEmail),
+    enabled: !!userEmail,
+  });
 
   if (!isLoaded) return null;
   if (!user) return <Redirect href="/auth" />;
 
   return (
-    <AccountContext.Provider value={{ account, loading }}>
+    <AccountContext.Provider value={{ account, loading: isLoading, refetch }}>
       {children}
     </AccountContext.Provider>
   );

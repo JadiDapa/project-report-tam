@@ -1,14 +1,60 @@
 import { View, Text } from "react-native";
 import { Ticket } from "lucide-react-native";
-import { TicketType } from "@/lib/types/ticket";
+import { CreateTicketType, TicketType } from "@/lib/types/ticket";
+import { Controller, useForm } from "react-hook-form";
+import z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { updateTicket } from "@/lib/network/ticket";
+import { useCustomToast } from "@/lib/useToast";
+import { getAllAccounts } from "@/lib/network/account";
+import SelectTicketExecutor from "./SelectTicketExecutor";
 
 interface TicketInfoProps {
   ticket: TicketType;
 }
 
+export const ticketSchema = z.object({
+  handler: z.number(),
+});
+
 export default function TicketInfo({ ticket }: TicketInfoProps) {
+  const { data: accounts } = useQuery({
+    queryFn: () => getAllAccounts(),
+    queryKey: ["accounts"],
+  });
+
+  const { showToast } = useCustomToast();
+  const queryClient = useQueryClient();
+
+  const { control } = useForm<z.infer<typeof ticketSchema>>({
+    resolver: zodResolver(ticketSchema),
+    values: {
+      handler: ticket.handler ? ticket.handler : 0, // Default to 0 if no handler is assigned
+    },
+  });
+
+  const { mutate: OnCreateTicket, isPending } = useMutation({
+    mutationFn: (values: Partial<CreateTicketType>) =>
+      updateTicket(ticket!.id.toString(), values),
+
+    onSuccess: () => {
+      showToast("Success", "Ticket Executor Assigned Successfully");
+      queryClient.invalidateQueries({ queryKey: ["tickets", ticket?.id] });
+    },
+
+    onError: (err) => {
+      console.log(err);
+      showToast("Error", "Failed To Update The Ticket");
+    },
+  });
+
+  function updateHandler(handlerId: number) {
+    OnCreateTicket({ handler: handlerId });
+  }
+
   return (
-    <View className="relative flex-1">
+    <View className="relative flex-1 mt-2">
       <View className="px-6 py-6 bg-white">
         <View className="flex flex-row items-center justify-center gap-2 ">
           <Ticket color="#444" size={24} />
@@ -40,9 +86,29 @@ export default function TicketInfo({ ticket }: TicketInfoProps) {
           <Text className=" font-cereal-medium text-end text-primary-500">
             Handler
           </Text>
-          <Text className=" font-cereal-medium text-end">
-            {ticket.Handler?.fullname || "Not Assigned"}
-          </Text>
+
+          {accounts && ticket && (
+            <Controller
+              control={control}
+              name="handler"
+              render={({ field }) => (
+                <SelectTicketExecutor
+                  value={field.value}
+                  onChange={(value) => {
+                    field.onChange(value);
+                    updateHandler(Number(value));
+                  }}
+                  options={
+                    accounts?.map((account) => ({
+                      label: account.fullname,
+                      value: account.id,
+                    })) || []
+                  }
+                  placeholder="Select Executor"
+                />
+              )}
+            />
+          )}
         </View>
       </View>
 
