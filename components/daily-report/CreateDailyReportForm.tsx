@@ -26,8 +26,6 @@ export default function CreateDailyReportForm() {
 
   const { account, loading } = useAccount();
 
-  if (loading || !account) return <Text>Loading account...</Text>;
-
   const {
     control,
     handleSubmit,
@@ -44,7 +42,6 @@ export default function CreateDailyReportForm() {
 
   const { mutate: OnCreateDailyReport, isPending } = useMutation({
     mutationFn: (values: CreateDailyReportType) => createDailyReport(values),
-
     onSuccess: () => {
       showToast("Success", "New DailyReport Created Successfully");
       queryClient.invalidateQueries({ queryKey: ["dailyReports"] });
@@ -56,6 +53,8 @@ export default function CreateDailyReportForm() {
       showToast("Error", "Failed To Create DailyReport");
     },
   });
+
+  if (loading || !account) return <Text>Loading account...</Text>;
 
   async function onSubmit(values: z.infer<typeof dailyReportSchema>) {
     if (account) {
@@ -113,9 +112,6 @@ export default function CreateDailyReportForm() {
         </View>
 
         <View>
-          <Text className="px-6 text-lg font-cereal-medium">
-            Report Evidences
-          </Text>
           <UploadReportEvidences
             uploadedEvidences={uploadedEvidences}
             setUploadedEvidences={setUploadedEvidences}

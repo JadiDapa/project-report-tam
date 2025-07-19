@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, Pressable } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -45,6 +45,7 @@ const projectSchema = z.object({
 export default function UpdateProjectForm({ id }: { id: string }) {
   const [openStart, setOpenStart] = useState(false);
   const [openEndDate, setOpenEndDate] = useState(false);
+  const [selectedEmployees, setSelectedEmployees] = useState<number[]>([]);
 
   const { showToast } = useCustomToast();
   const queryClient = useQueryClient();
@@ -56,16 +57,14 @@ export default function UpdateProjectForm({ id }: { id: string }) {
     queryKey: ["project", id],
   });
 
-  const { data: accounts } = useQuery({
-    queryFn: () => getAllAccounts(),
-    queryKey: ["accounts"],
-  });
-
+  console.log(selectedEmployees);
   console.log(project?.Employees);
 
-  const [selectedEmployees, setSelectedEmployees] = useState<number[]>(
-    project?.Employees?.map((emp) => emp.id) ?? []
-  );
+  useEffect(() => {
+    if (project?.Employees) {
+      setSelectedEmployees(project.Employees.map((emp) => emp.Account.id));
+    }
+  }, [project]);
 
   const {
     control,

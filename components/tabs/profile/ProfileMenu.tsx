@@ -27,12 +27,12 @@ export default function ProfileMenu() {
     {
       title: "Daily Reports",
       Icon: CreditCard,
-      route: `/daily-report/account/${account?.id}`,
+      route: `/daily-report/${account?.id}`,
     },
     {
       title: "Ticket",
       Icon: Tickets,
-      route: `/ticket/requester/${account?.id}`,
+      route: `/ticket/${account?.id}`,
     },
 
     {

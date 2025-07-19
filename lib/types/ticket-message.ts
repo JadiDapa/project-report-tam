@@ -4,6 +4,7 @@ import { TicketType } from "./ticket";
 export interface CreateTicketMessageType {
   content: string;
   image?: string | File;
+  type?: string;
   ticketId: number;
   accountId: number;
 }

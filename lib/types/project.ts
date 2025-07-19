@@ -1,5 +1,6 @@
 import { ProjectAssignmentType } from "./project-assignment";
 import { ReportType } from "./report";
+import { TaskType } from "./task";
 
 export interface CreateProjectType {
   title: string;
@@ -16,4 +17,5 @@ export interface ProjectType extends CreateProjectType {
   updatedAt: Date;
   Reports: ReportType[];
   Employees: ProjectAssignmentType[];
+  Tasks: TaskType[];
 }

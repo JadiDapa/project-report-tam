@@ -4,9 +4,8 @@ import {
   SafeAreaView,
   StatusBar,
 } from "react-native";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import SearchInput from "@/components/tabs/home/SearchInput";
 import StackScreenHeader from "@/components/StackScreenHeader";
 import BottomButton from "@/components/BottomButton";
 import { router } from "expo-router";
@@ -63,6 +62,7 @@ export default function AllProjects() {
 
       <FlatList
         data={filteredProjects}
+        contentContainerStyle={{ paddingBottom: 100 }}
         keyExtractor={(project) => project.id.toString()}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />

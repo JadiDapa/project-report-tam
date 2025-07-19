@@ -7,6 +7,8 @@ interface FloatingInputProps {
   onChangeText: (text: string) => void;
   multiline?: boolean;
   numberOfLines?: number;
+  keyboardType?: TextInput["props"]["keyboardType"];
+  disabled?: boolean;
 }
 
 export default function FloatingInput({
@@ -15,6 +17,8 @@ export default function FloatingInput({
   onChangeText,
   multiline = false,
   numberOfLines = 4,
+  keyboardType = "default",
+  disabled = false,
 }: FloatingInputProps) {
   const [isFocused, setIsFocused] = useState(false);
   const animatedIsFocused = useRef(new Animated.Value(0)).current;
@@ -69,6 +73,8 @@ export default function FloatingInput({
         numberOfLines={numberOfLines}
         className="px-5 py-4 text-base text-black"
         style={{ textAlignVertical: multiline ? "top" : "center" }}
+        keyboardType={keyboardType}
+        editable={!disabled}
       />
     </View>
   );

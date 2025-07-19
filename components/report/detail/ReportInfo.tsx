@@ -55,7 +55,7 @@ export default function ReportInfo({
         </Text>
       </View>
 
-      <View className="px-6 py-6 mt-4 bg-white ">
+      <View className="px-6 py-6 mt-3 bg-white ">
         <View className="flex-row items-center justify-between">
           <View>
             <Text className="text-lg font-cereal-medium">Serial Number</Text>
@@ -76,7 +76,7 @@ export default function ReportInfo({
         </View>
       </View>
 
-      <View className="px-6 py-6 mt-4 bg-white ">
+      <View className="px-6 py-6 mt-3 bg-white ">
         <Text className="text-xl font-cereal-bold">Detail</Text>
         <Text
           className={`font-cereal text-justify text-slate-600 ${

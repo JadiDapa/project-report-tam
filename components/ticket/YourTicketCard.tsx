@@ -3,9 +3,14 @@ import { useRouter } from "expo-router";
 import { TicketType } from "@/lib/types/ticket";
 import { format } from "date-fns";
 import { Ticket } from "lucide-react-native";
+import { ticketStatus } from "./TicketCard";
 
 export default function YourTicketCard({ ticket }: { ticket: TicketType }) {
   const router = useRouter();
+
+  const currentStatus = ticketStatus.find(
+    (st) => st.status.toLowerCase() === ticket.status?.toLowerCase()
+  );
   return (
     <Pressable
       onPress={() =>
@@ -22,9 +27,12 @@ export default function YourTicketCard({ ticket }: { ticket: TicketType }) {
           <Text className="text-white font-cereal-light">{ticket.code}</Text>
         </View>
 
-        <View className="w-20 p-1 px-3 overflow-hidden text-sm rounded-full bg-slate-200 text-slate-600 ">
-          <Text className="text-center capitalize text-slate-600 font-cereal-medium">
-            {ticket.status}
+        <View
+          className="w-32 py-0.5 px-2 overflow-hidden text-sm rounded-full"
+          style={{ backgroundColor: currentStatus?.color }}
+        >
+          <Text className="text-sm text-center text-white capitalize font-cereal-medium">
+            {currentStatus?.status}
           </Text>
         </View>
       </View>

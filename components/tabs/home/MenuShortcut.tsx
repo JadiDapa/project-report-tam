@@ -51,26 +51,6 @@ export default function MenuShortcut() {
 
   const menuShortcutList = [
     {
-      name: "My Projects",
-      icon: List,
-      route: `/project/account/${account?.id}`,
-    },
-    {
-      name: "My Daily Reports",
-      icon: ClipboardEdit,
-      route: `/daily-report/account/${account?.id}`,
-    },
-    {
-      name: "My Tickets",
-      icon: Ticket,
-      route: `/ticket/requester/${account?.id}`,
-    },
-    {
-      name: "Employee List",
-      icon: Users,
-      route: "/account",
-    },
-    {
       name: "All Projects",
       icon: ListCheck,
       route: `/project`,
@@ -93,6 +73,26 @@ export default function MenuShortcut() {
       icon: TicketCheck,
       route: `/ticket/handler/${account?.id}`,
       requiredFeature: "Handle Ticket",
+    },
+    {
+      name: "My Projects",
+      icon: List,
+      route: `/project/account/${account?.id}`,
+    },
+    {
+      name: "My Daily Reports",
+      icon: ClipboardEdit,
+      route: `/daily-report/account/${account?.id}`,
+    },
+    {
+      name: "My Tickets",
+      icon: Ticket,
+      route: `/ticket/requester/${account?.id}`,
+    },
+    {
+      name: "Employee List",
+      icon: Users,
+      route: "/account",
     },
   ];
 

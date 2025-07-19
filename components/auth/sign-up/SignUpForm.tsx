@@ -12,10 +12,14 @@ import {
 } from "react-native";
 import Feather from "@expo/vector-icons/Feather";
 import { useSignUp } from "@clerk/clerk-expo";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createAccount } from "@/lib/network/account";
 import { AccountType, CreateAccountType } from "@/lib/types/account";
 import { useCustomToast } from "@/lib/useToast";
+import {
+  getAllAppSettings,
+  getAppSettingByKey,
+} from "@/lib/network/app-setting";
 
 export default function SignUpForm() {
   const [fullname, setFullname] = useState("");
@@ -33,12 +37,19 @@ export default function SignUpForm() {
     mutationFn: (values: CreateAccountType) => createAccount(values),
   });
 
+  const { data: appSettings } = useQuery({
+    queryFn: getAllAppSettings,
+    queryKey: ["app-settings"],
+  });
+
   const handleWhatsAppRequest = () => {
     if (!fullname || !emailAddress) {
       showToast("Missing Info", "Please enter both full name and email");
       return;
     }
-    const phone = "6289523927152";
+    const phone = appSettings?.find(
+      (setting) => setting.key === "account_manager_phone"
+    )?.value;
     const message = `Hello Account Manager,
   
   I would like to request an account. Here are my details:
@@ -57,7 +68,9 @@ export default function SignUpForm() {
       return;
     }
 
-    const to = "accountmanager@example.com"; // <-- replace with your account manager's email
+    const to = appSettings?.find(
+      (setting) => setting.key === "account_manager_email"
+    )?.value; // <-- replace with your account manager's email
     const subject = "Account Request";
     const body = `Hello Account Manager,
   
@@ -103,6 +116,8 @@ export default function SignUpForm() {
   //     setLoading(false);
   //   }
   // };
+
+  console.log(appSettings);
 
   return (
     <View className="flex-1 p-9 pt-12 mt-6 bg-white rounded-t-[28px]">

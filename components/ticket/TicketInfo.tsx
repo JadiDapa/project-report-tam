@@ -5,14 +5,32 @@ import { Controller, useForm } from "react-hook-form";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { updateTicket } from "@/lib/network/ticket";
+import { createTicketMessage, updateTicket } from "@/lib/network/ticket";
 import { useCustomToast } from "@/lib/useToast";
 import { getAllAccounts } from "@/lib/network/account";
 import SelectTicketExecutor from "./SelectTicketExecutor";
+import { useAccount } from "@/contexts/AccountContexts";
+import { CreateTicketMessageType } from "@/lib/types/ticket-message";
+import { socket } from "@/app/(root)/ticket/[id]";
 
 interface TicketInfoProps {
   ticket: TicketType;
 }
+
+export const ticketStatus = [
+  {
+    status: "open",
+    color: "#a9a9a9",
+  },
+  {
+    status: "processed",
+    color: "#ffaa00",
+  },
+  {
+    status: "completed",
+    color: "#00aa00",
+  },
+];
 
 export const ticketSchema = z.object({
   handler: z.number(),
@@ -26,15 +44,16 @@ export default function TicketInfo({ ticket }: TicketInfoProps) {
 
   const { showToast } = useCustomToast();
   const queryClient = useQueryClient();
+  const { account } = useAccount(); // <-- Get the current logged in account
 
   const { control } = useForm<z.infer<typeof ticketSchema>>({
     resolver: zodResolver(ticketSchema),
     values: {
-      handler: ticket.handler ? ticket.handler : 0, // Default to 0 if no handler is assigned
+      handler: ticket.handler ?? 0,
     },
   });
 
-  const { mutate: OnCreateTicket, isPending } = useMutation({
+  const { mutate: onUpdateTicket } = useMutation({
     mutationFn: (values: Partial<CreateTicketType>) =>
       updateTicket(ticket!.id.toString(), values),
 
@@ -49,9 +68,52 @@ export default function TicketInfo({ ticket }: TicketInfoProps) {
     },
   });
 
+  const { mutate: onCreateTicketMessage } = useMutation({
+    mutationFn: (values: CreateTicketMessageType) =>
+      createTicketMessage(ticket!.id.toString(), values),
+    onError: (err) => {
+      console.log(err);
+      showToast("Error", "Failed To Create Message");
+    },
+  });
+
   function updateHandler(handlerId: number) {
-    OnCreateTicket({ handler: handlerId });
+    // Only proceed if the handler actually changed
+    if (ticket.handler !== handlerId) {
+      onUpdateTicket(
+        { handler: handlerId },
+        {
+          onSuccess: () => {
+            // Get handler name from accounts
+            const handlerAccount = accounts?.find(
+              (acc) => acc.id === handlerId
+            );
+            const handlerName = handlerAccount?.fullname || "Unknown";
+
+            const messageContent = `${handlerName} Assigned As Handler`;
+
+            const message: CreateTicketMessageType = {
+              content: messageContent,
+              image: "",
+              ticketId: ticket.id,
+              accountId: account?.id ?? 0,
+              type: "assign-handler", // <-- Custom type
+            };
+
+            onCreateTicketMessage(message, {
+              onSuccess: (savedMessage) => {
+                socket.emit("send_message", savedMessage);
+              },
+            });
+          },
+        }
+      );
+    }
   }
+
+  const currentStatus = ticketStatus.find(
+    (st) => st.status.toLowerCase() === ticket.status?.toLowerCase()
+  );
 
   return (
     <View className="relative flex-1 mt-2">
@@ -71,9 +133,19 @@ export default function TicketInfo({ ticket }: TicketInfoProps) {
         <Text className="mt-4 text-lg leading-tight text-center font-cereal-medium">
           {ticket.title}
         </Text>
+        {currentStatus && (
+          <View
+            className=" py-0.5 px-2 w-32 overflow-hidden mt-2 mx-auto text-sm rounded-full"
+            style={{ backgroundColor: currentStatus.color }}
+          >
+            <Text className="text-sm text-center text-white capitalize font-cereal-medium">
+              {currentStatus.status}
+            </Text>
+          </View>
+        )}
       </View>
 
-      <View className="flex flex-row justify-between px-6 py-6 mt-4 bg-white">
+      <View className="flex flex-row justify-between px-6 py-6 mt-3 bg-white">
         <View>
           <Text className="text-sm font-cereal-medium text-primary-500">
             Requester
@@ -112,7 +184,7 @@ export default function TicketInfo({ ticket }: TicketInfoProps) {
         </View>
       </View>
 
-      <View className="px-6 py-6 mt-4 bg-white">
+      <View className="px-6 py-6 mt-3 bg-white">
         <Text className="text-lg font-cereal-medium">Request Detail</Text>
         <Text className={`font-cereal text-justify text-slate-600 mt-2`}>
           {ticket.description}

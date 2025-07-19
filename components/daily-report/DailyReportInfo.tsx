@@ -54,7 +54,7 @@ export default function DailyReportInfo({ dailyReport }: DailyReportInfoProps) {
         )}
       </View>
 
-      <View className="flex flex-row justify-between px-6 py-6 mt-4 bg-white">
+      <View className="flex flex-row justify-between px-6 py-6 mt-3 bg-white">
         <View>
           <Text className="text-sm font-cereal-medium text-primary-500">
             Date/Time
@@ -73,7 +73,7 @@ export default function DailyReportInfo({ dailyReport }: DailyReportInfoProps) {
         </View>
       </View>
 
-      <View className="px-6 py-6 mt-4 bg-white">
+      <View className="px-6 py-6 mt-3 bg-white">
         <Text className="text-lg font-cereal-medium">Report Detail</Text>
         <Text className={`font-cereal text-justify text-slate-600 mt-2`}>
           {dailyReport.description}

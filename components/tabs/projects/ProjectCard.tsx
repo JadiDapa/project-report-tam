@@ -5,8 +5,35 @@ import { router } from "expo-router";
 import { Progress, ProgressFilledTrack } from "@/components/ui/progress";
 import Feather from "@expo/vector-icons/Feather";
 import { format } from "date-fns";
+import { statuses } from "@/components/project/create/CreateProjectForm";
 
 export default function ProjectCard({ project }: { project: ProjectType }) {
+  function globalPercentage() {
+    if (!project?.Tasks || project.Tasks.length === 0) return 0;
+
+    // Exclude tasks with item === "Documentation"
+    const validTasks = project.Tasks.filter(
+      (task) => task.item !== "Documentation"
+    );
+    if (validTasks.length === 0) return 0;
+
+    const totalPercentage = validTasks.reduce((sum, task) => {
+      const filledEvidences = task.TaskEvidences.filter(
+        (e) => e.TaskEvidenceImages.length > 0
+      ).length;
+      const taskCompletion = Math.min(
+        filledEvidences / (task.quantity ?? 1),
+        1
+      ); // Cap at 100%
+      return sum + taskCompletion;
+    }, 0);
+
+    const averagePercentage = (totalPercentage / validTasks.length) * 100;
+    return Number(averagePercentage.toFixed(1));
+  }
+
+  const status = statuses.find((s) => s.value === project.status);
+
   return (
     <View className="px-6 mt-4 ">
       <Pressable
@@ -22,8 +49,12 @@ export default function ProjectCard({ project }: { project: ProjectType }) {
           <Text className="flex-1 text-lg line-clamp-2 font-cereal-bold">
             {project.title}
           </Text>
-          <View className="items-center justify-center w-16 h-6 rounded-full bg-primary-100">
-            <Text className="text-sm capitalize font-cereal-medium">
+          <View
+            className={`items-center justify-center w-20 h-6 rounded-full ${
+              status?.bg ?? "bg-gray-200"
+            }`}
+          >
+            <Text className="text-sm text-white capitalize font-cereal-medium">
               {project.status}
             </Text>
           </View>
@@ -34,7 +65,7 @@ export default function ProjectCard({ project }: { project: ProjectType }) {
 
         <Progress
           className="w-full mt-3"
-          value={Math.random() * 100}
+          value={globalPercentage()}
           size={"sm"}
         >
           <ProgressFilledTrack />
@@ -52,7 +83,11 @@ export default function ProjectCard({ project }: { project: ProjectType }) {
           <View className="rounded-full size-1 bg-primary-500" />
           <View className="flex-row items-center gap-1">
             <Feather name="users" size={16} color="" />
-            <Text className="text-primary-800 font-cereal">{0} Employees</Text>
+            {project.Employees && (
+              <Text className="text-primary-800 font-cereal">
+                {project.Employees.length} Employees
+              </Text>
+            )}
           </View>
         </View>
       </Pressable>

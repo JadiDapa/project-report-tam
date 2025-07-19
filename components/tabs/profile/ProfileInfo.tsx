@@ -160,7 +160,9 @@ export default function ProfileInfo({ account }: { account: AccountType }) {
         <View className="flex-row items-center gap-3 px-3 py-1 rounded-lg">
           <Phone size={16} color={"#555"} />
           <Text className="text-slate-600 font-cereal-medium">
-            {"+62" + account.phoneNumber || "No Phone Number Provided"}
+            {account.phoneNumber
+              ? "+62" + account.phoneNumber
+              : "No Phone Number Provided"}
           </Text>
         </View>
         <View className="flex-row items-center gap-3 px-3 py-1 rounded-lg">

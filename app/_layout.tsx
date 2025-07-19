@@ -1,9 +1,9 @@
 import "@/global.css";
 import { useFonts } from "expo-font";
-import { Redirect, Slot, SplashScreen, Stack } from "expo-router";
+import { SplashScreen, Slot } from "expo-router";
 import { useEffect } from "react";
 import GlobalProvider from "@/lib/global-provider";
-import { useUser } from "@clerk/clerk-expo";
+import * as Updates from "expo-updates";
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
@@ -20,6 +20,23 @@ export default function RootLayout() {
       SplashScreen.hideAsync();
     }
   }, [fontsLoaded]);
+
+  // ✅ Auto update check on startup
+  useEffect(() => {
+    const checkAndUpdate = async () => {
+      try {
+        const update = await Updates.checkForUpdateAsync();
+        if (update.isAvailable) {
+          await Updates.fetchUpdateAsync();
+          await Updates.reloadAsync(); // App will reload with the new update
+        }
+      } catch (e) {
+        console.log("Expo update check failed:", e);
+      }
+    };
+
+    checkAndUpdate();
+  }, []);
 
   if (!fontsLoaded) {
     return null;

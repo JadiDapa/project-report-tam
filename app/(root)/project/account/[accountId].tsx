@@ -6,7 +6,6 @@ import {
 } from "react-native";
 import { useCallback, useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import SearchInput from "@/components/tabs/home/SearchInput";
 import StackScreenHeader from "@/components/StackScreenHeader";
 import { useLocalSearchParams } from "expo-router";
 import { getProjectsByAccountId } from "@/lib/network/project";

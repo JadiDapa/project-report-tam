@@ -44,7 +44,7 @@ export default function ProjectEmployees({
         }}
         keyExtractor={(employee) => employee.id.toString()}
         renderItem={({ item: employee }) => (
-          <View className="items-center justify-center w-16 me-1 rounded-xl">
+          <View className="items-center w-16 me-1 rounded-xl">
             <View className="relative items-center justify-center overflow-hidden rounded-full bg-primary-300 size-14">
               {employee.Account.image ? (
                 <Image

@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getAllDailyReports } from "@/lib/network/daily-report";
 import { format } from "date-fns";
 
-export default function reportList() {
+export default function ReportList() {
   const router = useRouter();
 
   const { data: reports } = useQuery({

@@ -10,7 +10,7 @@ import { CreateTicketType } from "@/lib/types/ticket";
 import FloatingInput from "../FloatingInput";
 import { useAccount } from "@/contexts/AccountContexts";
 
-const statuses = [
+const priorities = [
   {
     label: "Low",
     value: "low",
@@ -30,7 +30,7 @@ const statuses = [
 
 const ticketSchema = z.object({
   title: z.string().min(1, "Ticket Name is required"),
-  status: z.enum(["low", "normal", "high"]).default("low"),
+  priority: z.enum(["low", "normal", "high"]).default("low"),
   description: z.string().min(1, "Description is required"),
   requester: z.number(),
 });
@@ -40,9 +40,7 @@ export default function CreateTicketForm() {
   const queryClient = useQueryClient();
   const router = useRouter();
 
-  const { account, loading } = useAccount();
-
-  if (loading || !account) return <Text>Loading account...</Text>;
+  const { account } = useAccount();
 
   const {
     control,
@@ -54,7 +52,7 @@ export default function CreateTicketForm() {
     defaultValues: {
       title: "",
       description: "",
-      status: "low",
+      priority: "low",
       requester: account?.id,
     },
   });
@@ -66,7 +64,8 @@ export default function CreateTicketForm() {
       showToast("Success", "New Ticket Created Successfully");
       queryClient.invalidateQueries({ queryKey: ["tickets"] });
       router.push({
-        pathname: "/ticket",
+        pathname: "/ticket/requester/[accountId]",
+        params: { accountId: account!.id },
       });
     },
 
@@ -76,7 +75,7 @@ export default function CreateTicketForm() {
     },
   });
 
-  const status = watch("status");
+  const priority = watch("priority");
 
   async function onSubmit(values: z.infer<typeof ticketSchema>) {
     OnCreateTicket(values);
@@ -92,7 +91,7 @@ export default function CreateTicketForm() {
             name="title"
             render={({ field }) => (
               <FloatingInput
-                label="Reason"
+                label="Title"
                 value={field.value}
                 onChangeText={field.onChange}
               />
@@ -109,21 +108,23 @@ export default function CreateTicketForm() {
         <View className="relative px-6 mb-6">
           <Text className=" font-cereal-regular">Priority</Text>
           <View className="flex-row justify-between">
-            {statuses.map((item) => (
+            {priorities.map((item) => (
               <Controller
                 key={item.value}
                 control={control}
-                name="status"
+                name="priority"
                 render={({ field }) => (
                   <Pressable
                     onPress={() => field.onChange(item.value)}
                     className={`items-center justify-center border-slate-300 border h-12 px-3 py-2 mt-3 w-28 rounded-xl ${
-                      status === item.value ? item.bgColor : "bg-white "
+                      priority === item.value ? item.bgColor : "bg-white "
                     }`}
                   >
                     <Text
                       className={`font-cereal-medium ${
-                        status === item.value ? item.bgColor : "text-slate-500"
+                        priority === item.value
+                          ? item.bgColor
+                          : "text-slate-500"
                       }`}
                     >
                       {item.label}

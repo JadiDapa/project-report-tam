@@ -34,7 +34,9 @@ export default function SelectSingleInput({
     <Pressable onPress={() => setShowActionsheet(true)}>
       <View className="relative w-full px-5 py-5 border border-gray-300 rounded-md">
         <Text
-          className={`${value ? "" : "text-slate-400"} font-cereal-regular`}
+          className={`${
+            value ? "" : "text-slate-400"
+          } capitalize font-cereal-regular`}
         >
           {value || placeholder}
         </Text>

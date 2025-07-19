@@ -1,11 +1,4 @@
-import {
-  FlatList,
-  SafeAreaView,
-  StatusBar,
-  View,
-  Text,
-  Pressable,
-} from "react-native";
+import { FlatList, SafeAreaView, StatusBar } from "react-native";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import SearchInput from "@/components/tabs/home/SearchInput";
@@ -22,8 +15,6 @@ export default function UserTickets() {
     queryFn: () => getTicketsByHandlerId(accountId.toString()),
     queryKey: ["tickets", accountId],
   });
-
-  console.log(tickets);
 
   return (
     <SafeAreaView className="relative flex-1 bg-primary-50">

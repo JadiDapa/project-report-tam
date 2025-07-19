@@ -62,7 +62,7 @@ export default function DailyDailyReports() {
 
       <SearchInput query={reportQuery} setQuery={setProjectQuery} />
 
-      <ScrollView className="mt-6">
+      <ScrollView className={`mt-6 ${todayReports.length === 0 && "mb-24"}`}>
         {todayReports.length > 0 && (
           <View className="mb-2 ">
             <Text className="px-6 py-2 text-lg text-gray-700 font-cereal-medium">
@@ -106,13 +106,15 @@ export default function DailyDailyReports() {
         )}
       </ScrollView>
 
-      <View className="absolute bottom-0 w-full px-6 py-4 bg-white border-t shadow-md border-slate-200">
-        <Pressable onPress={() => router.push("/daily-report/create")}>
-          <Text className="px-6 py-4 text-lg text-center text-white rounded-md shadow-lg font bg-primary-500 font-cereal-medium shadow-primary-500/50">
-            Create Daily Report
-          </Text>
-        </Pressable>
-      </View>
+      {todayReports.length === 0 && (
+        <View className="absolute bottom-0 w-full px-6 py-4 bg-white border-t shadow-md border-slate-200">
+          <Pressable onPress={() => router.push("/daily-report/create")}>
+            <Text className="px-6 py-4 text-lg text-center text-white rounded-md shadow-lg font bg-primary-500 font-cereal-medium shadow-primary-500/50">
+              Create Daily Report
+            </Text>
+          </Pressable>
+        </View>
+      )}
     </SafeAreaView>
   );
 }

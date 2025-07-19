@@ -44,13 +44,13 @@ export default function DailyReportDetail() {
         />
       </ScrollView>
 
-      <View className="absolute bottom-0 w-full px-6 py-4 bg-white border-t shadow-md border-slate-200">
+      {/* <View className="absolute bottom-0 w-full px-6 py-4 bg-white border-t shadow-md border-slate-200">
         <Pressable onPress={() => {}}>
           <Text className="px-6 py-4 text-lg text-center text-white rounded-md shadow-lg font bg-primary-500 font-cereal-medium shadow-primary-500/50">
             Approve Report
           </Text>
         </Pressable>
-      </View>
+      </View> */}
     </View>
   );
 }

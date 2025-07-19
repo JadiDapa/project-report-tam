@@ -13,21 +13,24 @@ import { useAuth } from "@clerk/clerk-expo";
 import { CreateProjectType } from "@/lib/types/project";
 import FloatingInput from "@/components/FloatingInput";
 
-const statuses = [
+export const statuses = [
   {
     label: "Low",
     value: "low",
     bgColor: "bg-success-200 text-success-700 border-success-500",
+    bg: "bg-success-500",
   },
   {
     label: "Medium",
     value: "medium",
     bgColor: "bg-warning-200 text-warning-700 border-warning-500",
+    bg: "bg-warning-500",
   },
   {
     label: "High",
     value: "high",
     bgColor: "bg-error-200 text-error-700 border-error-500",
+    bg: "bg-error-500",
   },
 ];
 

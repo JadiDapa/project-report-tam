@@ -1,4 +1,4 @@
-import { KeyboardAvoidingView, Platform, StatusBar } from "react-native";
+import { KeyboardAvoidingView, Platform } from "react-native";
 
 import SignUpHeader from "@/components/auth/sign-up/SignUpHeader";
 import SignUpForm from "@/components/auth/sign-up/SignUpForm";

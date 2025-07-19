@@ -1,6 +1,5 @@
 import { SafeAreaView, StatusBar } from "react-native";
 import React from "react";
-import EditAccountProfileHeader from "@/components/profile/EditAccountProfileHeader";
 import EditAccountForm from "@/components/profile/EditAccountForm";
 import TabScreenHeader from "@/components/tabs/TabScreenHeader";
 

@@ -4,9 +4,9 @@ import { TicketType } from "@/lib/types/ticket";
 import { format } from "date-fns";
 import { Ticket, User } from "lucide-react-native";
 
-const status = [
+export const ticketStatus = [
   {
-    status: "sent",
+    status: "open",
     color: "#a9a9a9",
   },
   {
@@ -21,7 +21,8 @@ const status = [
 
 export default function TicketCard({ ticket }: { ticket: TicketType }) {
   const router = useRouter();
-  const currentStatus = status.find(
+
+  const currentStatus = ticketStatus.find(
     (st) => st.status.toLowerCase() === ticket.status?.toLowerCase()
   );
 
@@ -41,16 +42,14 @@ export default function TicketCard({ ticket }: { ticket: TicketType }) {
           <Text className="text-primary-500 font-cereal">{ticket.code}</Text>
         </View>
 
-        {currentStatus && (
-          <View
-            className="w-auto py-0.5 px-2 overflow-hidden text-sm rounded-full"
-            style={{ backgroundColor: currentStatus.color }}
-          >
-            <Text className="text-sm text-center text-white capitalize font-cereal-medium">
-              {currentStatus.status}
-            </Text>
-          </View>
-        )}
+        <View
+          className="w-32 py-0.5 px-2 overflow-hidden text-sm rounded-full"
+          style={{ backgroundColor: currentStatus?.color }}
+        >
+          <Text className="text-sm text-center text-white capitalize font-cereal-medium">
+            {currentStatus?.status}
+          </Text>
+        </View>
       </View>
 
       <Text className="mt-2 font-cereal-bold text-slate-700 line-clamp-2">

@@ -8,7 +8,7 @@ import { StatusBar } from "expo-status-bar";
 
 export const profileMenu = ["general", "friends", "achievements"];
 
-export default function profile() {
+export default function Profile() {
   const { account, loading } = useAccount();
 
   if (loading || !account) return <Text>Loading account...</Text>;

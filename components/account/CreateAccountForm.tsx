@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import { View, Text, Pressable, TextInput } from "react-native";
+import { View, Text, Pressable } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -68,24 +67,23 @@ export default function CreateAccountForm() {
   });
 
   async function onSubmit(values: z.infer<typeof accountSchema>) {
-    OnCreateAccount({
-      fullname: values.fullname,
-      email: values.email,
-      roleId:
-        features!.find((feature) => feature.name === values.role)?.id ?? 0,
-    });
-    queryClient.invalidateQueries({ queryKey: ["accounts"] });
+    try {
+      const roleId =
+        features!.find((feature) => feature.name === values.role)?.id ?? 0;
 
-    const signUpAttempt = await signUp!.create({
-      emailAddress: values.email,
-      password: values.password,
-    });
+      await OnCreateAccount({
+        fullname: values.fullname,
+        email: values.email,
+        password: values.password,
+        roleId,
+      });
 
-    if (signUpAttempt.status === "complete") {
+      queryClient.invalidateQueries({ queryKey: ["accounts"] });
       showToast("Success", "Account Successfully Created!");
-      router.push("/");
-    } else {
-      showToast("Error!", "Failed to Sign Your Account");
+      router.push("/employee");
+    } catch (err) {
+      console.error("Account creation failed", err);
+      showToast("Error", "Failed to create account");
     }
   }
 

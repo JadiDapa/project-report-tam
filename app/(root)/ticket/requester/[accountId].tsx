@@ -23,8 +23,6 @@ export default function UserTickets() {
     queryKey: ["tickets", accountId],
   });
 
-  console.log(tickets);
-
   return (
     <SafeAreaView className="relative flex-1 bg-primary-50">
       <StatusBar backgroundColor="#2d52d2" />
@@ -35,6 +33,7 @@ export default function UserTickets() {
 
       <FlatList
         data={tickets}
+        contentContainerStyle={{ paddingBottom: 120 }}
         keyExtractor={(report) => report.id.toString()}
         renderItem={({ item }) => <YourTicketCard ticket={item} />}
       />

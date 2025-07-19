@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, Pressable, TextInput, ScrollView } from "react-native";
+import { View, Text, Pressable, ScrollView } from "react-native";
 import UploadReportEvidences from "./UploadReportEvidences";
 import { z } from "zod";
 import { Controller, useForm } from "react-hook-form";
@@ -32,9 +32,7 @@ export default function CreateReportForm({ projectId }: { projectId: string }) {
   const queryClient = useQueryClient();
   const router = useRouter();
 
-  const { account, loading } = useAccount();
-
-  if (loading || !account) return <Text>Loading account...</Text>;
+  const { account } = useAccount();
 
   const { data: project } = useQuery({
     queryFn: () => getProjectById(projectId, getToken),

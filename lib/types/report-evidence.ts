@@ -1,5 +1,3 @@
-import { ReportType } from "./report";
-
 export interface CreateReportEvidenceType {
   image: string;
   description?: string;

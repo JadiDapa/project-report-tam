@@ -37,7 +37,7 @@ export default function TicketMessages({
   }
 
   return (
-    <View className="relative flex-1 px-6 py-6 mt-6 bg-white">
+    <View className="relative flex-1 px-6 py-6 mt-3 bg-white">
       {messages?.length > 0 ? (
         <View className="flex">
           {messages.map((message, index) => {
@@ -46,9 +46,29 @@ export default function TicketMessages({
               prevMessage && prevMessage.Account.id === message.Account.id;
             const isCurrentUser = message.Account.id === account?.id;
 
+            if (message.type === "status-change") {
+              return (
+                <View key={message.id}>
+                  <Text className="py-4 text-center capitalize text-slate-400 font-cereal-medium">
+                    --- {message.content} ---
+                  </Text>
+                </View>
+              );
+            }
+
+            if (message.type === "assign-handler") {
+              return (
+                <View key={message.id}>
+                  <Text className="py-4 text-center capitalize text-primary-500 font-cereal-medium">
+                    --- {message.content} ---
+                  </Text>
+                </View>
+              );
+            }
+
             return (
               <View
-                key={index}
+                key={message.id}
                 className={`${
                   isSameSender ? "mt-1" : "mt-6"
                 } px-4 py-3 rounded-lg w-[90%] ${

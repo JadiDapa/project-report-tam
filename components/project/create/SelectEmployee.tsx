@@ -6,7 +6,7 @@ import {
   TextInput,
   ScrollView,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Entypo from "@expo/vector-icons/Entypo";
 import {
   Modal,
@@ -15,17 +15,13 @@ import {
   ModalHeader,
   ModalBody,
 } from "@/components/ui/modal";
-import {
-  Icon,
-  SearchIcon,
-  CheckIcon,
-  ChevronRightIcon,
-} from "@/components/ui/icon";
+import { Icon, CheckIcon } from "@/components/ui/icon";
 import { useQuery } from "@tanstack/react-query";
 import { getAllAccounts } from "@/lib/network/account";
 import { AccountType } from "@/lib/types/account";
 import { Image } from "react-native";
 import { getInitials } from "@/lib/getInitials";
+import { Check, ChevronRight, Search } from "lucide-react-native";
 
 interface SelectEmployeProps {
   selectedEmployees: number[];
@@ -124,11 +120,9 @@ function SelectEmployeeModal({
       <ModalContent className="pb-0 rounded-3xl">
         <ModalHeader className="flex flex-row gap-1">
           <View className="relative flex-1 border rounded-lg border-slate-600">
-            <Icon
-              as={SearchIcon}
-              size="md"
-              className="absolute -translate-y-1/2 left-2 top-1/2"
-            />
+            <View className="absolute -translate-y-1/2 left-2 top-1/2">
+              <Search size={18} />
+            </View>
             <TextInput
               onChangeText={setSearchValue}
               placeholder="Search Employee"
@@ -144,7 +138,7 @@ function SelectEmployeeModal({
             onPress={() => setShowModal(false)}
             className="items-center justify-center w-8 h-12 rounded-lg bg-primary-500"
           >
-            <Icon as={ChevronRightIcon} size="md" className="text-white" />
+            <ChevronRight size={18} color={"#ffffff"} />
           </Pressable>
         </ModalHeader>
 
@@ -176,13 +170,7 @@ function SelectEmployeeModal({
                   <Text className="flex-1 capitalize font-cereal">
                     {employee.fullname}
                   </Text>
-                  {isSelected && (
-                    <Icon
-                      as={CheckIcon}
-                      size="md"
-                      className="border text-primary-700 pe-4"
-                    />
-                  )}
+                  {isSelected && <Check size={18} color={"#001eff"} />}
                 </Pressable>
               );
             })}

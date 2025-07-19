@@ -11,28 +11,44 @@ import {
 } from "lucide-react-native";
 import { router } from "expo-router";
 import { useAccount } from "@/contexts/AccountContexts";
+import { ProjectType } from "@/lib/types/project";
+import { format } from "date-fns";
 
 interface ProjectInfoProps {
-  id: number;
-  title: string;
-  description?: string;
-  startDate: string;
-  endDate: string;
+  project: ProjectType;
 }
 
-export default function ProjectInfo({
-  id,
-  title,
-  description,
-  startDate,
-  endDate,
-}: ProjectInfoProps) {
+export default function ProjectInfo({ project }: ProjectInfoProps) {
   const [moreDetail, setMoreDetail] = useState(false);
   const { account } = useAccount();
 
   const isAdmin = account?.Role?.Features?.some((feature) => {
     return feature.name === "Manage Project";
   });
+
+  function globalPercentage() {
+    if (!project?.Tasks || project.Tasks.length === 0) return 0;
+
+    // Exclude tasks with item === "Documentation"
+    const validTasks = project.Tasks.filter(
+      (task) => task.item !== "Documentation"
+    );
+    if (validTasks.length === 0) return 0;
+
+    const totalPercentage = validTasks.reduce((sum, task) => {
+      const filledEvidences = task.TaskEvidences.filter(
+        (e) => e.TaskEvidenceImages.length > 0
+      ).length;
+      const taskCompletion = Math.min(
+        filledEvidences / (task.quantity ?? 1),
+        1
+      ); // Cap at 100%
+      return sum + taskCompletion;
+    }, 0);
+
+    const averagePercentage = (totalPercentage / validTasks.length) * 100;
+    return Number(averagePercentage.toFixed(1));
+  }
 
   return (
     <View className="">
@@ -49,16 +65,16 @@ export default function ProjectInfo({
           #PR-060525-0001
         </Text>
 
-        <View className="flex flex-row items-center justify-center gap-2 mt-6">
+        <View className="flex flex-row items-center justify-center gap-2 mt-3">
           <Text className="text-lg leading-tight text-center font-cereal-medium">
-            {title}
+            {project.title}
           </Text>
           {isAdmin && (
             <Pressable
               onPress={() =>
                 router.push({
                   pathname: "/project/update/[id]",
-                  params: { id: id },
+                  params: { id: project.id },
                 })
               }
             >
@@ -68,13 +84,15 @@ export default function ProjectInfo({
         </View>
       </View>
 
-      <View className="px-6 py-6 mt-4 bg-white ">
+      <View className="px-6 py-6 mt-3 bg-white ">
         <View className="flex-row items-center justify-between">
           <View>
             <Text className="text-lg font-cereal-medium">Start</Text>
             <View className="flex-row items-center gap-2">
               <Icon as={CalendarDaysIcon} size="sm" color="#4459ff" />
-              <Text className="font-cereal">{startDate}</Text>
+              <Text className="font-cereal">
+                {format(project.startDate, "dd MMMM yyyy")}
+              </Text>
             </View>
           </View>
           <View>
@@ -83,34 +101,37 @@ export default function ProjectInfo({
             </Text>
             <View className="flex-row items-center gap-2">
               <Icon as={CalendarDaysIcon} size="sm" color="#4459ff" />
-              <Text className="font-cereal">{endDate}</Text>
+              <Text className="font-cereal">
+                {format(project.endDate, "dd MMMM yyyy")}
+              </Text>
             </View>
           </View>
         </View>
         <View className="gap-1 mt-9">
           <View className="flex-row items-center justify-between ">
             <Text className="text-lg font-cereal-medium">In Progress</Text>
-            <Text className="text-lg font-cereal-medium">60 %</Text>
+            <Text className="text-lg font-cereal-medium">
+              {globalPercentage()} %
+            </Text>
           </View>
-          <Progress className="w-full bg-primary-100" value={60} size={"sm"}>
+          <Progress
+            className="w-full bg-primary-100"
+            value={globalPercentage()}
+            size={"sm"}
+          >
             <ProgressFilledTrack />
           </Progress>
         </View>
       </View>
 
-      <View className="px-6 py-6 mt-4 bg-white ">
+      <View className="px-6 py-6 mt-3 bg-white ">
         <Text className="text-xl font-cereal-bold">Overview</Text>
         <Text
           className={`font-cereal text-justify text-slate-600 ${
             moreDetail ? "" : "line-clamp-5"
           }`}
         >
-          {description && description}The project will incoperate with several
-          web development technologies. Lorem ipsum dolor sit amet, consectetur
-          adipisicing elit. Nesciunt, ducimus? Repudiandae ab error consequatur
-          nisi saepe reprehenderit maiores! Eum sed pariatur libero, repudiandae
-          dolore quasi praesentium, earum porro assumenda totam animi eaque
-          maiores impedit expedita officiis accusantium perferendis.{" "}
+          {project.description && project.description}
         </Text>
         <Pressable
           className="flex-row items-center self-end gap-2"

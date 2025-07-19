@@ -88,7 +88,9 @@
     "react-native-webview": "13.13.5",
     "socket.io-client": "^4.8.1",
     "tailwindcss": "^3.4.17",
-    "zod": "^3.24.2"
+    "xlsx": "^0.18.5",
+    "zod": "^3.24.2",
+    "expo-updates": "~0.28.17"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
@@ -99,7 +101,9 @@
     "jest-expo": "~53.0.5",
     "jscodeshift": "^0.15.2",
     "react-test-renderer": "18.3.1",
-    "typescript": "~5.8.3"
+    "typescript": "~5.8.3",
+    "eslint": "^9.0.0",
+    "eslint-config-expo": "~9.2.0"
   },
   "private": true
 }

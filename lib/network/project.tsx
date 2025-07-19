@@ -2,13 +2,9 @@ import { axiosInstance } from "./axiosInstance";
 import { CreateProjectType, ProjectType } from "../types/project";
 
 // Fetch all projects
-export async function getAllProjects(getToken: () => Promise<string | null>) {
-  const token = await getToken();
+export async function getAllProjects() {
   const { data } = await axiosInstance.get<{ data: ProjectType[] }>(
-    "/projects",
-    {
-      headers: { Authorization: `Bearer ${token}` },
-    }
+    "/projects"
   );
   return data.data;
 }
