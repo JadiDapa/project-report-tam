@@ -4,23 +4,27 @@ import {
   SafeAreaView,
   StatusBar,
 } from "react-native";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import StackScreenHeader from "@/components/StackScreenHeader";
-import BottomButton from "@/components/BottomButton";
-import { router } from "expo-router";
-import { getAllProjects } from "@/lib/network/project";
+import { useLocalSearchParams } from "expo-router";
+import { getProjectsByAccountId } from "@/lib/network/project";
+import { useAuth } from "@clerk/clerk-expo";
 import ProjectCard from "@/components/tabs/projects/ProjectCard";
 import ProjectFilter from "@/components/project/ProjectFilter";
 
-export default function AllProjects() {
+export default function ProjectByAccount() {
   const [refreshing, setRefreshing] = useState(false);
   const [projectQuery, setAccountQuery] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
 
+  const { accountId } = useLocalSearchParams();
+
+  const { getToken } = useAuth();
+
   const { data: projects, refetch } = useQuery({
-    queryFn: () => getAllProjects(),
-    queryKey: ["projects"],
+    queryFn: () => getProjectsByAccountId(accountId.toString(), getToken),
+    queryKey: ["projects", accountId],
   });
 
   const onRefresh = useCallback(async () => {
@@ -48,7 +52,7 @@ export default function AllProjects() {
     <SafeAreaView className="relative flex-1 bg-primary-50">
       <StatusBar backgroundColor="#2d52d2" />
 
-      <StackScreenHeader title="All Projects" />
+      <StackScreenHeader title="Your Projects" />
 
       <ProjectFilter
         query={projectQuery}
@@ -59,16 +63,11 @@ export default function AllProjects() {
 
       <FlatList
         data={filteredProjects}
-        contentContainerStyle={{ paddingBottom: 100 }}
         keyExtractor={(project) => project.id.toString()}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
         renderItem={({ item: project }) => <ProjectCard project={project} />}
-      />
-      <BottomButton
-        text="Add New Project"
-        onPress={() => router.push("/project/create")}
       />
     </SafeAreaView>
   );

@@ -8,19 +8,29 @@ import { useCallback, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import StackScreenHeader from "@/components/StackScreenHeader";
 import BottomButton from "@/components/BottomButton";
-import { router } from "expo-router";
-import { getAllProjects } from "@/lib/network/project";
+import { router, useLocalSearchParams } from "expo-router";
+import { getAllProjects, getProjectsByProgramId } from "@/lib/network/project";
+import { useAuth } from "@clerk/clerk-expo";
 import ProjectCard from "@/components/tabs/projects/ProjectCard";
 import ProjectFilter from "@/components/project/ProjectFilter";
+import { getProgramById } from "@/lib/network/program";
+import ProgramHeader from "@/components/program/ProgramHeader";
 
-export default function AllProjects() {
+export default function ProgramProjects() {
   const [refreshing, setRefreshing] = useState(false);
   const [projectQuery, setAccountQuery] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
 
+  const { id } = useLocalSearchParams();
+
   const { data: projects, refetch } = useQuery({
-    queryFn: () => getAllProjects(),
+    queryFn: () => getProjectsByProgramId(id as string),
     queryKey: ["projects"],
+  });
+
+  const { data: program } = useQuery({
+    queryFn: () => getProgramById(id as string),
+    queryKey: ["programs", id],
   });
 
   const onRefresh = useCallback(async () => {
@@ -50,6 +60,8 @@ export default function AllProjects() {
 
       <StackScreenHeader title="All Projects" />
 
+      {program && <ProgramHeader program={program} />}
+
       <ProjectFilter
         query={projectQuery}
         setQuery={setAccountQuery}
@@ -66,10 +78,10 @@ export default function AllProjects() {
         }
         renderItem={({ item: project }) => <ProjectCard project={project} />}
       />
-      <BottomButton
+      {/* <BottomButton
         text="Add New Project"
         onPress={() => router.push("/project/create")}
-      />
+      /> */}
     </SafeAreaView>
   );
 }

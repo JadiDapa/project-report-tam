@@ -24,6 +24,13 @@ export async function getProjectsByAccountId(
   return data.data;
 }
 
+export async function getProjectsByProgramId(programId: string) {
+  const { data } = await axiosInstance.get<{ data: ProjectType[] }>(
+    `/projects/program/${programId}`
+  );
+  return data.data;
+}
+
 // Fetch a project by ID
 export async function getProjectById(
   id: string,
