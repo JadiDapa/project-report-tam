@@ -1,4 +1,12 @@
-import { View, Text, FlatList, Pressable, Image } from "react-native";
+import {
+  View,
+  Text,
+  FlatList,
+  Pressable,
+  Image,
+  useWindowDimensions,
+  TextInput,
+} from "react-native";
 import React, { useState, useRef } from "react";
 import Entypo from "@expo/vector-icons/Entypo";
 import * as ImagePicker from "expo-image-picker";
@@ -15,11 +23,9 @@ import {
   Camera,
   Download,
   Images,
-  Trash2,
 } from "lucide-react-native";
 import { ReportEvidenceType } from "@/lib/types/report-evidence";
 import * as Location from "expo-location";
-import { useWindowDimensions } from "react-native";
 import ViewShot from "react-native-view-shot";
 import * as MediaLibrary from "expo-media-library";
 
@@ -35,18 +41,22 @@ export default function UploadReportEvidences({
   isUpload = true,
 }: UploadedReportEvidencesProps) {
   const [showModal, setShowModal] = useState(false);
+  const [showManualModal, setShowManualModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [capturedDate, setCapturedDate] = useState<string | null>(null);
   const [isCapturedImage, setIsCapturedImage] = useState(false);
   const viewShotRef = useRef<ViewShot>(null);
   const { width, height } = useWindowDimensions();
   const [capturedLocation, setCapturedLocation] = useState<{
-    coords: {
-      latitude: number;
-      longitude: number;
-    };
+    coords: { latitude: number; longitude: number };
     address?: string;
   } | null>(null);
+
+  // Manual geotagging input states
+  const [manualDate, setManualDate] = useState("");
+  const [manualTime, setManualTime] = useState("");
+  const [manualLat, setManualLat] = useState("");
+  const [manualLng, setManualLng] = useState("");
 
   const pickImages = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -75,7 +85,7 @@ export default function UploadReportEvidences({
 
     const location = await Location.getCurrentPositionAsync({});
 
-    // Reverse geocoding to get address
+    // Reverse geocoding
     let address = "";
     try {
       const reverseGeocode = await Location.reverseGeocodeAsync({
@@ -102,7 +112,6 @@ export default function UploadReportEvidences({
     let result = await ImagePicker.launchCameraAsync({
       allowsEditing: false,
       quality: 1,
-      presentationStyle: ImagePicker.UIImagePickerPresentationStyle.FULL_SCREEN,
     });
 
     if (!result.canceled) {
@@ -110,6 +119,52 @@ export default function UploadReportEvidences({
       setCapturedDate(date);
       setCapturedLocation({
         ...location,
+        address,
+      });
+      setSelectedImage(result.assets[0].uri);
+      setIsCapturedImage(true);
+    }
+  };
+
+  const manualGeotagImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsMultipleSelection: false,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      const lat = parseFloat(manualLat);
+      const lng = parseFloat(manualLng);
+
+      let address = "";
+      try {
+        const reverseGeocode = await Location.reverseGeocodeAsync({
+          latitude: lat,
+          longitude: lng,
+        });
+
+        if (reverseGeocode.length > 0) {
+          const first = reverseGeocode[0];
+          address = [
+            first.street,
+            first.city,
+            first.region,
+            first.country,
+            first.postalCode,
+          ]
+            .filter(Boolean)
+            .join(", ");
+        }
+      } catch (error) {
+        console.error("Reverse geocoding failed:", error);
+      }
+
+      const dateTime = `${manualDate} ${manualTime}`;
+
+      setCapturedDate(dateTime);
+      setCapturedLocation({
+        coords: { latitude: lat, longitude: lng },
         address,
       });
       setSelectedImage(result.assets[0].uri);
@@ -173,6 +228,7 @@ export default function UploadReportEvidences({
 
   return (
     <View className="relative py-6 mt-4 bg-white">
+      {/* Fullscreen Preview */}
       <Modal
         isOpen={!!selectedImage}
         onClose={() => {
@@ -227,7 +283,6 @@ export default function UploadReportEvidences({
             </ViewShot>
           </Pressable>
 
-          {/* Download button (shown when not in capture mode) */}
           {!isCapturedImage && (
             <Pressable
               onPress={downloadImage}
@@ -240,9 +295,7 @@ export default function UploadReportEvidences({
 
           {isCapturedImage && (
             <Pressable
-              onPress={() => {
-                saveImageWithOverlay();
-              }}
+              onPress={saveImageWithOverlay}
               className="absolute items-center justify-between flex-row w-[100vw] px-4 py-4 bg-white top-0"
             >
               <Text className="font-cereal-medium">
@@ -254,13 +307,71 @@ export default function UploadReportEvidences({
         </ModalContent>
       </Modal>
 
+      {/* Manual Input Modal */}
+      <Modal
+        isOpen={showManualModal}
+        onClose={() => setShowManualModal(false)}
+        size="md"
+      >
+        <ModalBackdrop />
+        <ModalContent className="p-4 rounded-2xl">
+          <ModalHeader>
+            <Text className="text-lg text-center font-cereal-medium">
+              Manual Geotagging
+            </Text>
+          </ModalHeader>
+          <ModalBody>
+            <TextInput
+              placeholder="Date (YYYY-MM-DD)"
+              value={manualDate}
+              onChangeText={setManualDate}
+              className="p-2 mb-2 border rounded"
+            />
+            <TextInput
+              placeholder="Time (HH:MM)"
+              value={manualTime}
+              onChangeText={setManualTime}
+              className="p-2 mb-2 border rounded"
+            />
+            <TextInput
+              placeholder="Latitude"
+              value={manualLat}
+              onChangeText={setManualLat}
+              keyboardType="numeric"
+              className="p-2 mb-2 border rounded"
+            />
+            <TextInput
+              placeholder="Longitude"
+              value={manualLng}
+              onChangeText={setManualLng}
+              keyboardType="numeric"
+              className="p-2 mb-4 border rounded"
+            />
+
+            <Pressable
+              onPress={() => {
+                manualGeotagImage();
+                setShowManualModal(false);
+              }}
+              className="p-3 bg-blue-500 rounded-xl"
+            >
+              <Text className="text-center text-white">Select Image</Text>
+            </Pressable>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+
+      {/* Upload Option Modal */}
       <SelectEmployeeModal
         showModal={showModal}
         setShowModal={setShowModal}
         pickImages={pickImages}
         takePhoto={takePhoto}
         pickFromGoogleDrive={pickFromGoogleDrive}
+        openManualModal={() => setShowManualModal(true)}
       />
+
+      {/* Uploaded Preview */}
       <FlatList
         data={uploadedEvidences}
         horizontal
@@ -306,14 +417,14 @@ export default function UploadReportEvidences({
   );
 }
 
-// SelectEmployeeModal remains the same
-
+// SelectEmployeeModal
 interface SelectEmployeeModalProps {
   showModal: boolean;
   setShowModal: (show: boolean) => void;
   pickImages: () => void;
   takePhoto: () => void;
   pickFromGoogleDrive: () => void;
+  openManualModal: () => void;
 }
 
 function SelectEmployeeModal({
@@ -322,6 +433,7 @@ function SelectEmployeeModal({
   pickImages,
   takePhoto,
   pickFromGoogleDrive,
+  openManualModal,
 }: SelectEmployeeModalProps) {
   return (
     <Modal isOpen={showModal} onClose={() => setShowModal(false)} size="md">
@@ -339,12 +451,11 @@ function SelectEmployeeModal({
             <View className="w-8 h-[1px] bg-slate-500" />
           </View>
         </ModalHeader>
-        <ModalBody className="">
+        <ModalBody>
           <View className="flex-row justify-between gap-4 pt-2">
             <Pressable
               onPress={() => {
                 takePhoto();
-
                 setShowModal(false);
               }}
               className="items-center justify-center border-2 border-dashed rounded-xl border-slate-500 size-20"
@@ -354,10 +465,10 @@ function SelectEmployeeModal({
                 Camera
               </Text>
             </Pressable>
+
             <Pressable
               onPress={() => {
                 pickImages();
-
                 setShowModal(false);
               }}
               className="items-center justify-center border-2 border-dashed rounded-xl border-slate-500 size-20"
@@ -367,10 +478,10 @@ function SelectEmployeeModal({
                 Gallery
               </Text>
             </Pressable>
+
             <Pressable
               onPress={() => {
                 pickFromGoogleDrive();
-
                 setShowModal(false);
               }}
               className="items-center justify-center border-2 border-dashed rounded-xl border-slate-500 size-20"
@@ -378,6 +489,19 @@ function SelectEmployeeModal({
               <Entypo name="google-drive" size={32} color="#9196a5" />
               <Text className="text-center text-slate-500 font-cereal-medium">
                 Drive
+              </Text>
+            </Pressable>
+
+            <Pressable
+              onPress={() => {
+                openManualModal();
+                setShowModal(false);
+              }}
+              className="items-center justify-center border-2 border-dashed rounded-xl border-slate-500 size-20"
+            >
+              <Entypo name="location" size={32} color="#9196a5" />
+              <Text className="text-center text-slate-500 font-cereal-medium">
+                Manual
               </Text>
             </Pressable>
           </View>

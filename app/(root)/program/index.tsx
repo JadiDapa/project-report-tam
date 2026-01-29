@@ -9,18 +9,18 @@ import { useQuery } from "@tanstack/react-query";
 import StackScreenHeader from "@/components/StackScreenHeader";
 import BottomButton from "@/components/BottomButton";
 import { router } from "expo-router";
-import { getAllProjects } from "@/lib/network/project";
-import ProjectCard from "@/components/tabs/projects/ProjectCard";
 import ProjectFilter from "@/components/project/ProjectFilter";
+import { getAllPrograms } from "@/lib/network/program";
+import ProgramCard from "@/components/program/ProgramCard";
 
 export default function AllProjects() {
   const [refreshing, setRefreshing] = useState(false);
   const [projectQuery, setAccountQuery] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
 
-  const { data: projects, refetch } = useQuery({
-    queryFn: () => getAllProjects(),
-    queryKey: ["projects"],
+  const { data: programs, refetch } = useQuery({
+    queryFn: () => getAllPrograms(),
+    queryKey: ["programs"],
   });
 
   const onRefresh = useCallback(async () => {
@@ -32,7 +32,7 @@ export default function AllProjects() {
     }
   }, [refetch]);
 
-  const filteredProjects = projects?.filter((project) => {
+  const filteredProjects = programs?.filter((project) => {
     const matchesQuery = project.title
       .toLowerCase()
       .includes(projectQuery.toLowerCase());
@@ -42,7 +42,7 @@ export default function AllProjects() {
     return matchesQuery && matchesStatus;
   });
 
-  if (!projects) return null;
+  if (!programs) return null;
 
   return (
     <SafeAreaView className="relative flex-1 bg-primary-50">
@@ -64,12 +64,12 @@ export default function AllProjects() {
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
-        renderItem={({ item: project }) => <ProjectCard project={project} />}
+        renderItem={({ item: program }) => <ProgramCard program={program} />}
       />
-      <BottomButton
+      {/* <BottomButton
         text="Add New Project"
         onPress={() => router.push("/project/create")}
-      />
+      /> */}
     </SafeAreaView>
   );
 }

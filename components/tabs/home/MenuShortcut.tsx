@@ -13,6 +13,7 @@ import {
   ChevronUp,
   ClipboardEdit,
   ClipboardList,
+  FolderCog,
   List,
   ListCheck,
   Ticket,
@@ -51,6 +52,11 @@ export default function MenuShortcut() {
 
   const menuShortcutList = [
     {
+      name: "All Programs",
+      icon: FolderCog,
+      route: `/program`,
+    },
+    {
       name: "All Projects",
       icon: ListCheck,
       route: `/project`,
@@ -69,12 +75,6 @@ export default function MenuShortcut() {
       requiredFeature: "Manage Ticket",
     },
     {
-      name: "Assigned Ticket",
-      icon: TicketCheck,
-      route: `/ticket/handler/${account?.id}`,
-      requiredFeature: "Handle Ticket",
-    },
-    {
       name: "My Projects",
       icon: List,
       route: `/project/account/${account?.id}`,
@@ -89,10 +89,16 @@ export default function MenuShortcut() {
       icon: Ticket,
       route: `/ticket/requester/${account?.id}`,
     },
+    // {
+    //   name: "Employee List",
+    //   icon: Users,
+    //   route: "/account",
+    // },
     {
-      name: "Employee List",
-      icon: Users,
-      route: "/account",
+      name: "Assigned Ticket",
+      icon: TicketCheck,
+      route: `/ticket/handler/${account?.id}`,
+      requiredFeature: "Handle Ticket",
     },
   ];
 

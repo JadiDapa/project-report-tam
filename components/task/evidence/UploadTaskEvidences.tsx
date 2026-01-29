@@ -6,11 +6,13 @@ import {
   useWindowDimensions,
   FlatList,
   Alert,
+  TextInput,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Entypo from "@expo/vector-icons/Entypo";
 import * as ImagePicker from "expo-image-picker";
-import * as DocumentPicker from "expo-document-picker";
 import {
   Modal,
   ModalBackdrop,
@@ -21,13 +23,14 @@ import {
 import {
   ArrowBigRightDash,
   Camera,
-  Download,
   Images,
+  Download,
 } from "lucide-react-native";
 import * as Location from "expo-location";
 import ViewShot from "react-native-view-shot";
 import * as MediaLibrary from "expo-media-library";
 import * as FileSystem from "expo-file-system";
+import DateTimePicker from "@react-native-community/datetimepicker"; // 📌 add this
 import { CreateTaskEvidenceImageType } from "@/lib/types/task-evidence-image";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -62,70 +65,17 @@ export default function UploadTaskEvidence({
   } | null>(null);
   const [isCameraLoading, setIsCameraLoading] = useState(false);
 
+  // new states for manual geotagging flow
+  const [manualModalVisible, setManualModalVisible] = useState(false);
+  const [manualImageUri, setManualImageUri] = useState<string | null>(null);
+
   const viewShotRef = useRef<ViewShot>(null);
   const { width, height } = useWindowDimensions();
   const { showToast } = useCustomToast();
   const queryClient = useQueryClient();
   const { account } = useAccount();
 
-  const pickFromGallery = async () => {
-    setIsCameraLoading(true);
-
-    try {
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsMultipleSelection: false,
-        quality: 1,
-      });
-
-      if (!result.canceled) {
-        const imageUri = result.assets[0].uri;
-
-        // Get location
-        const { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== "granted") {
-          alert("Location permission is required.");
-          return;
-        }
-
-        const location = await Location.getCurrentPositionAsync({});
-        let address = "";
-
-        try {
-          const reverseGeocode = await Location.reverseGeocodeAsync({
-            latitude: location.coords.latitude,
-            longitude: location.coords.longitude,
-          });
-
-          if (reverseGeocode.length > 0) {
-            const info = reverseGeocode[0];
-            address = [
-              info.street,
-              info.city,
-              info.region,
-              info.country,
-              info.postalCode,
-            ]
-              .filter(Boolean)
-              .join(", ");
-          }
-        } catch (error) {
-          console.error("Reverse geocode failed:", error);
-        }
-
-        setSelectedImage(imageUri);
-        setCapturedDate(new Date().toLocaleString());
-        setCapturedLocation({ ...location, address });
-        setIsCapturedImage(true);
-      }
-    } catch (err) {
-      console.error("Gallery or Location Error:", err);
-      alert("Failed to pick image or get location.");
-    } finally {
-      setIsCameraLoading(false);
-    }
-  };
-
+  // --- Camera (auto geotag) ---
   const takePhoto = async () => {
     setIsCameraLoading(true);
 
@@ -182,20 +132,85 @@ export default function UploadTaskEvidence({
     }
   };
 
-  const pickFromDrive = async () => {
-    const result = await DocumentPicker.getDocumentAsync({
-      type: "image/*",
-      copyToCacheDirectory: true,
-    });
+  // --- Gallery (auto geotag) ---
+  const pickFromGalleryAuto = async () => {
+    setIsCameraLoading(true);
 
-    if (!result.canceled && result.assets?.length > 0) {
-      const imageUri = result.assets[0].uri;
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        alert("Location permission is required for auto geotag.");
+        return;
+      }
 
-      onCreateImage({
-        image: imageUri,
-        taskEvidenceId: Number(evidenceId),
-        accountId: account?.id || undefined,
+      const location = await Location.getCurrentPositionAsync({});
+      let address = "";
+
+      try {
+        const reverseGeocode = await Location.reverseGeocodeAsync({
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        });
+
+        if (reverseGeocode.length > 0) {
+          const info = reverseGeocode[0];
+          address = [
+            info.street,
+            info.city,
+            info.region,
+            info.country,
+            info.postalCode,
+          ]
+            .filter(Boolean)
+            .join(", ");
+        }
+      } catch (error) {
+        console.error("Failed reverse geocode:", error);
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsMultipleSelection: false,
+        quality: 1,
       });
+
+      if (!result.canceled) {
+        const imageUri = result.assets[0].uri;
+
+        setSelectedImage(imageUri);
+        setCapturedDate(new Date().toLocaleString());
+        setCapturedLocation({ ...location, address });
+        setIsCapturedImage(true);
+      }
+    } catch (err) {
+      console.error("Gallery Auto Error:", err);
+      alert("Failed to get auto geotag.");
+    } finally {
+      setIsCameraLoading(false);
+    }
+  };
+
+  // --- Gallery (manual geotag) ---
+  const pickFromGalleryManual = async () => {
+    setIsCameraLoading(true);
+
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsMultipleSelection: false,
+        quality: 1,
+      });
+
+      if (!result.canceled) {
+        const imageUri = result.assets[0].uri;
+        setManualImageUri(imageUri);
+        setManualModalVisible(true);
+      }
+    } catch (err) {
+      console.error("Gallery Manual Error:", err);
+      alert("Failed to pick image.");
+    } finally {
+      setIsCameraLoading(false);
     }
   };
 
@@ -231,7 +246,6 @@ export default function UploadTaskEvidence({
     }
 
     try {
-      // Download the remote image to a local file
       const filename = selectedImage.split("/").pop();
       if (!FileSystem.documentDirectory) {
         alert("Cannot access document directory.");
@@ -249,7 +263,6 @@ export default function UploadTaskEvidence({
       }
       const localUri = downloadResult.uri;
 
-      // Save to media library
       await MediaLibrary.saveToLibraryAsync(localUri);
       alert("Image saved to gallery.");
     } catch (error) {
@@ -261,33 +274,21 @@ export default function UploadTaskEvidence({
   const { mutate: onCreateImage } = useMutation({
     mutationFn: (values: CreateTaskEvidenceImageType) =>
       createTaskEvidenceImage(values),
-
     onSuccess: (data) => {
       showToast("Success", "Evidence Image Created");
-
       setUploadedEvidences((prev) => [...prev, data]);
-
-      // optionally revalidate related queries
       queryClient.invalidateQueries({
         queryKey: ["evidences", evidenceId],
       });
     },
-
     onError: (error: any) => {
-      // Default error message
       let message = "Something went wrong.";
-
-      // Handle network error (no response from server)
       if (error?.message === "Network Error") {
         message = "Network error. Please check your internet connection.";
       }
-
-      // If the server responded with a message (e.g. validation error)
       if (error?.response?.data?.message) {
         message = error.response.data.message;
       }
-
-      // Show error message
       showToast("Error", message);
       console.error("Upload error:", error);
     },
@@ -330,6 +331,7 @@ export default function UploadTaskEvidence({
         </View>
       )}
 
+      {/* Preview Modal */}
       <Modal isOpen={!!selectedImage} onClose={resetPreviewState}>
         <ModalBackdrop />
         <ModalContent className="w-full h-full bg-black/50">
@@ -393,12 +395,33 @@ export default function UploadTaskEvidence({
         </ModalContent>
       </Modal>
 
+      {/* Manual Geotag Modal */}
+      <ManualGeotagModal
+        visible={manualModalVisible}
+        imageUri={manualImageUri}
+        onClose={() => {
+          setManualModalVisible(false);
+          setManualImageUri(null);
+        }}
+        onConfirm={(data) => {
+          setSelectedImage(manualImageUri);
+          setCapturedDate(data.dateString);
+          setCapturedLocation({
+            coords: { latitude: data.latitude, longitude: data.longitude },
+            address: data.address,
+          });
+          setIsCapturedImage(true);
+          setManualModalVisible(false);
+          setManualImageUri(null);
+        }}
+      />
+
       <UploadOptionsModal
         visible={modalVisible}
         setVisible={setModalVisible}
         onCamera={takePhoto}
-        onGallery={pickFromGallery}
-        onDrive={pickFromDrive}
+        onGalleryAuto={pickFromGalleryAuto}
+        onGalleryManual={pickFromGalleryManual}
       />
 
       <View className="flex-row items-center justify-between px-6">
@@ -429,7 +452,6 @@ export default function UploadTaskEvidence({
           <Pressable
             onPress={() => setSelectedImage(evidence.image)}
             onLongPress={() => {
-              console.log("Long pressed:", evidence.id);
               if (evidence.id) {
                 confirmDelete(evidence.id);
               }
@@ -460,16 +482,16 @@ interface UploadOptionsModalProps {
   visible: boolean;
   setVisible: (v: boolean) => void;
   onCamera: () => void;
-  onGallery: () => void;
-  onDrive: () => void;
+  onGalleryAuto: () => void;
+  onGalleryManual: () => void;
 }
 
 function UploadOptionsModal({
   visible,
   setVisible,
   onCamera,
-  onGallery,
-  onDrive,
+  onGalleryAuto,
+  onGalleryManual,
 }: UploadOptionsModalProps) {
   return (
     <Modal isOpen={visible} onClose={() => setVisible(false)} size="md">
@@ -499,18 +521,18 @@ function UploadOptionsModal({
             />
             <UploadOption
               icon={<Images size={32} color="#9196a5" />}
-              label="Gallery"
+              label="Gallery (Auto)"
               onPress={() => {
                 setVisible(false);
-                onGallery();
+                onGalleryAuto();
               }}
             />
             <UploadOption
-              icon={<Entypo name="google-drive" size={32} color="#9196a5" />}
-              label="Drive"
+              icon={<Images size={32} color="#9196a5" />}
+              label="Gallery (Manual)"
               onPress={() => {
                 setVisible(false);
-                onDrive();
+                onGalleryManual();
               }}
             />
           </View>
@@ -539,3 +561,179 @@ const UploadOption = ({
     </Text>
   </Pressable>
 );
+
+// ManualGeotagModal
+interface ManualGeotagModalProps {
+  visible: boolean;
+  imageUri: string | null;
+  onClose: () => void;
+  onConfirm: (data: {
+    dateString: string;
+    latitude: number;
+    longitude: number;
+    address?: string;
+  }) => void;
+}
+
+function ManualGeotagModal({
+  visible,
+  imageUri,
+  onClose,
+  onConfirm,
+}: ManualGeotagModalProps) {
+  const [date, setDate] = useState<Date>(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [latitude, setLatitude] = useState<string>("");
+  const [longitude, setLongitude] = useState<string>("");
+  const [address, setAddress] = useState<string>("");
+
+  useEffect(() => {
+    if (visible) {
+      setDate(new Date());
+      setLatitude("");
+      setLongitude("");
+      setAddress("");
+    }
+  }, [visible]);
+
+  // 🔥 Fetch address when lat/lon are updated
+  useEffect(() => {
+    const fetchAddressFromCoords = async () => {
+      if (!latitude || !longitude) return;
+
+      const lat = parseFloat(latitude);
+      const lon = parseFloat(longitude);
+
+      if (isNaN(lat) || isNaN(lon)) return;
+
+      try {
+        const results = await Location.reverseGeocodeAsync({
+          latitude: lat,
+          longitude: lon,
+        });
+
+        if (results.length > 0) {
+          const info = results[0];
+          const formatted = [
+            info.street,
+            info.city,
+            info.region,
+            info.country,
+            info.postalCode,
+          ]
+            .filter(Boolean)
+            .join(", ");
+          setAddress(formatted);
+        }
+      } catch (err) {
+        console.error("Reverse geocode error:", err);
+      }
+    };
+
+    fetchAddressFromCoords();
+  }, [latitude, longitude]);
+
+  return (
+    <Modal isOpen={visible} onClose={onClose} size="lg">
+      <ModalBackdrop />
+      <ModalContent className="pb-4 rounded-3xl">
+        <ModalHeader>
+          <Text className="text-lg text-center font-cereal-medium">
+            Enter Geotag Information
+          </Text>
+        </ModalHeader>
+        <ModalBody>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : undefined}
+          >
+            <View className="gap-2">
+              <Text>Date:</Text>
+              <Pressable
+                className="p-2 border rounded-md"
+                onPress={() => setShowDatePicker(true)}
+              >
+                <Text>{date.toLocaleDateString()}</Text>
+              </Pressable>
+              {showDatePicker && (
+                <DateTimePicker
+                  value={date}
+                  mode="date"
+                  display="default"
+                  onChange={(event, selected) => {
+                    setShowDatePicker(false);
+                    if (selected) setDate(selected);
+                  }}
+                />
+              )}
+
+              <Text>Time:</Text>
+              <Pressable
+                className="p-2 border rounded-md"
+                onPress={() => setShowTimePicker(true)}
+              >
+                <Text>{date.toLocaleTimeString()}</Text>
+              </Pressable>
+              {showTimePicker && (
+                <DateTimePicker
+                  value={date}
+                  mode="time"
+                  display="default"
+                  onChange={(event, selected) => {
+                    setShowTimePicker(false);
+                    if (selected) setDate(selected);
+                  }}
+                />
+              )}
+
+              <Text>Latitude:</Text>
+              <TextInput
+                className="p-2 border rounded-md"
+                keyboardType="numeric"
+                value={latitude}
+                onChangeText={setLatitude}
+              />
+
+              <Text>Longitude:</Text>
+              <TextInput
+                className="p-2 border rounded-md"
+                keyboardType="numeric"
+                value={longitude}
+                onChangeText={setLongitude}
+              />
+
+              <Text>Address (auto-fetched):</Text>
+              <TextInput
+                className="p-2 border rounded-md"
+                value={address}
+                editable={false}
+              />
+            </View>
+
+            <View className="flex-row justify-between mt-4">
+              <Pressable
+                className="px-4 py-2 bg-gray-200 rounded-lg"
+                onPress={onClose}
+              >
+                <Text>Cancel</Text>
+              </Pressable>
+              <Pressable
+                className="px-4 py-2 bg-blue-500 rounded-lg"
+                onPress={() => {
+                  onConfirm({
+                    dateString: date.toLocaleString(),
+                    latitude: parseFloat(latitude),
+                    longitude: parseFloat(longitude),
+                    address,
+                  });
+                }}
+              >
+                <Text className="text-white">Confirm</Text>
+              </Pressable>
+            </View>
+          </KeyboardAvoidingView>
+        </ModalBody>
+      </ModalContent>
+    </Modal>
+  );
+}
