@@ -43,8 +43,12 @@ export default function UploadReportEvidences({
 }: UploadedReportEvidencesProps) {
   const [showModal, setShowModal] = useState(false);
   const [showManualModal, setShowManualModal] = useState(false);
+<<<<<<< HEAD
   const [selectedImage, setSelectedImage] =
     useState<TaskEvidenceImageType>(null);
+=======
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+>>>>>>> 9c52db63e2799ef59beae0032901aad58e8110a3
   const [capturedDate, setCapturedDate] = useState<string | null>(null);
   const [isCapturedImage, setIsCapturedImage] = useState(false);
   const viewShotRef = useRef<ViewShot>(null);

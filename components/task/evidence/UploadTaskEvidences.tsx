@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { View, Text, Pressable, useWindowDimensions } from "react-native";
 import React, { useState, useRef } from "react";
 import Entypo from "@expo/vector-icons/Entypo";
@@ -7,6 +8,41 @@ import ViewShot from "react-native-view-shot";
 import * as MediaLibrary from "expo-media-library";
 import * as FileSystem from "expo-file-system";
 import * as Location from "expo-location";
+=======
+import {
+  View,
+  Text,
+  Pressable,
+  Image,
+  useWindowDimensions,
+  FlatList,
+  Alert,
+  TextInput,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
+import React, { useState, useRef, useEffect } from "react";
+import Entypo from "@expo/vector-icons/Entypo";
+import * as ImagePicker from "expo-image-picker";
+import {
+  Modal,
+  ModalBackdrop,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+} from "@/components/ui/modal";
+import {
+  ArrowBigRightDash,
+  Camera,
+  Images,
+  Download,
+} from "lucide-react-native";
+import * as Location from "expo-location";
+import ViewShot from "react-native-view-shot";
+import * as MediaLibrary from "expo-media-library";
+import * as FileSystem from "expo-file-system";
+import DateTimePicker from "@react-native-community/datetimepicker"; // 📌 add this
+>>>>>>> 9c52db63e2799ef59beae0032901aad58e8110a3
 import { CreateTaskEvidenceImageType } from "@/lib/types/task-evidence-image";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -47,6 +83,10 @@ export default function UploadTaskEvidence({
   const [isCameraLoading, setIsCameraLoading] = useState(false);
   const [editingEvidence, setEditingEvidence] =
     useState<CreateTaskEvidenceImageType | null>(null);
+
+  // new states for manual geotagging flow
+  const [manualModalVisible, setManualModalVisible] = useState(false);
+  const [manualImageUri, setManualImageUri] = useState<string | null>(null);
 
   // new states for manual geotagging flow
   const [manualModalVisible, setManualModalVisible] = useState(false);
@@ -335,6 +375,7 @@ export default function UploadTaskEvidence({
         </View>
       )}
 
+<<<<<<< HEAD
       {isUploading && (
         <View className="absolute top-0 bottom-0 left-0 right-0 z-50 items-center justify-center bg-black/60">
           <Text className="mb-2 text-base text-white font-cereal-medium">
@@ -343,6 +384,55 @@ export default function UploadTaskEvidence({
           <Text className="text-sm text-white/80">Please wait</Text>
         </View>
       )}
+=======
+      {/* Preview Modal */}
+      <Modal isOpen={!!selectedImage} onClose={resetPreviewState}>
+        <ModalBackdrop />
+        <ModalContent className="w-full h-full bg-black/50">
+          <Pressable
+            className="items-center justify-center flex-1"
+            onPress={resetPreviewState}
+          >
+            <ViewShot ref={viewShotRef} options={{ format: "png", quality: 1 }}>
+              <Image
+                source={{ uri: selectedImage || "" }}
+                style={{ width, height: height * 0.8 }}
+                resizeMode="contain"
+              />
+              {(capturedDate || capturedLocation) && (
+                <View
+                  style={{
+                    position: "absolute",
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    backgroundColor: "rgb(0,0,0)",
+                    padding: 10,
+                  }}
+                >
+                  {capturedDate && (
+                    <Text style={{ color: "white", fontSize: 12 }}>
+                      Captured: {capturedDate}
+                    </Text>
+                  )}
+                  {capturedLocation && (
+                    <>
+                      <Text style={{ color: "white", fontSize: 12 }}>
+                        Location: {capturedLocation.coords.latitude.toFixed(5)},{" "}
+                        {capturedLocation.coords.longitude.toFixed(5)}
+                      </Text>
+                      {capturedLocation.address && (
+                        <Text style={{ color: "white", fontSize: 12 }}>
+                          Address: {capturedLocation.address}
+                        </Text>
+                      )}
+                    </>
+                  )}
+                </View>
+              )}
+            </ViewShot>
+          </Pressable>
+>>>>>>> 9c52db63e2799ef59beae0032901aad58e8110a3
 
       {/* Preview Modal */}
       <PreviewImageModal
@@ -396,6 +486,27 @@ export default function UploadTaskEvidence({
         }}
       />
 
+      {/* Manual Geotag Modal */}
+      <ManualGeotagModal
+        visible={manualModalVisible}
+        imageUri={manualImageUri}
+        onClose={() => {
+          setManualModalVisible(false);
+          setManualImageUri(null);
+        }}
+        onConfirm={(data) => {
+          setSelectedImage(manualImageUri);
+          setCapturedDate(data.dateString);
+          setCapturedLocation({
+            coords: { latitude: data.latitude, longitude: data.longitude },
+            address: data.address,
+          });
+          setIsCapturedImage(true);
+          setManualModalVisible(false);
+          setManualImageUri(null);
+        }}
+      />
+
       <UploadOptionsModal
         visible={modalVisible}
         setVisible={setModalVisible}
@@ -412,6 +523,7 @@ export default function UploadTaskEvidence({
           </Pressable>
         )}
       </View>
+<<<<<<< HEAD
       <EvidenceList
         onDeleteImage={onDeleteImage}
         setSelectedEvidence={(evidence) => {
@@ -422,6 +534,41 @@ export default function UploadTaskEvidence({
         isUpload={isUpload}
         setModalVisible={setModalVisible}
         isUploading={isUploading}
+=======
+      <FlatList
+        data={uploadedEvidences}
+        horizontal
+        className="mt-2 ps-6"
+        showsHorizontalScrollIndicator={false}
+        ListFooterComponent={() =>
+          isUpload ? (
+            <Pressable
+              onPress={() => setModalVisible(true)}
+              className="items-center justify-center gap-2 border-2 border-dashed rounded-xl border-slate-500 size-32"
+            >
+              <Entypo name="plus" size={24} color="#56585f" />
+              <Text className="font-cereal-medium">Upload</Text>
+            </Pressable>
+          ) : null
+        }
+        renderItem={({ item: evidence }) => (
+          <Pressable
+            onPress={() => setSelectedImage(evidence.image)}
+            onLongPress={() => {
+              if (evidence.id) {
+                confirmDelete(evidence.id);
+              }
+            }}
+            className="relative items-center justify-center overflow-hidden border-2 size-32 me-2 rounded-xl border-slate-500"
+          >
+            <Image
+              source={{ uri: evidence.image }}
+              resizeMode="cover"
+              className="w-full h-full"
+            />
+          </Pressable>
+        )}
+>>>>>>> 9c52db63e2799ef59beae0032901aad58e8110a3
       />
 
       {uploadedEvidences.length > 0 && (
@@ -434,3 +581,267 @@ export default function UploadTaskEvidence({
     </View>
   );
 }
+<<<<<<< HEAD
+=======
+
+// Upload Options Modal
+interface UploadOptionsModalProps {
+  visible: boolean;
+  setVisible: (v: boolean) => void;
+  onCamera: () => void;
+  onGalleryAuto: () => void;
+  onGalleryManual: () => void;
+}
+
+function UploadOptionsModal({
+  visible,
+  setVisible,
+  onCamera,
+  onGalleryAuto,
+  onGalleryManual,
+}: UploadOptionsModalProps) {
+  return (
+    <Modal isOpen={visible} onClose={() => setVisible(false)} size="md">
+      <ModalBackdrop />
+      <ModalContent className="pb-0 rounded-3xl">
+        <ModalHeader className="flex flex-col gap-1">
+          <Text className="text-lg text-center font-cereal-medium">
+            Upload Evidence
+          </Text>
+          <View className="flex-row items-center gap-2">
+            <View className="w-8 h-[1px] bg-slate-500" />
+            <Text className="text-sm text-center font-cereal text-slate-500">
+              Choose Source
+            </Text>
+            <View className="w-8 h-[1px] bg-slate-500" />
+          </View>
+        </ModalHeader>
+        <ModalBody>
+          <View className="flex-row justify-between gap-4 pt-2">
+            <UploadOption
+              icon={<Camera size={32} color="#9196a5" />}
+              label="Camera"
+              onPress={() => {
+                setVisible(false);
+                onCamera();
+              }}
+            />
+            <UploadOption
+              icon={<Images size={32} color="#9196a5" />}
+              label="Gallery (Auto)"
+              onPress={() => {
+                setVisible(false);
+                onGalleryAuto();
+              }}
+            />
+            <UploadOption
+              icon={<Images size={32} color="#9196a5" />}
+              label="Gallery (Manual)"
+              onPress={() => {
+                setVisible(false);
+                onGalleryManual();
+              }}
+            />
+          </View>
+        </ModalBody>
+      </ModalContent>
+    </Modal>
+  );
+}
+
+const UploadOption = ({
+  icon,
+  label,
+  onPress,
+}: {
+  icon: JSX.Element;
+  label: string;
+  onPress: () => void;
+}) => (
+  <Pressable
+    onPress={onPress}
+    className="items-center justify-center border-2 border-dashed rounded-xl border-slate-500 size-20"
+  >
+    {icon}
+    <Text className="text-center text-slate-500 font-cereal-medium">
+      {label}
+    </Text>
+  </Pressable>
+);
+
+// ManualGeotagModal
+interface ManualGeotagModalProps {
+  visible: boolean;
+  imageUri: string | null;
+  onClose: () => void;
+  onConfirm: (data: {
+    dateString: string;
+    latitude: number;
+    longitude: number;
+    address?: string;
+  }) => void;
+}
+
+function ManualGeotagModal({
+  visible,
+  imageUri,
+  onClose,
+  onConfirm,
+}: ManualGeotagModalProps) {
+  const [date, setDate] = useState<Date>(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [latitude, setLatitude] = useState<string>("");
+  const [longitude, setLongitude] = useState<string>("");
+  const [address, setAddress] = useState<string>("");
+
+  useEffect(() => {
+    if (visible) {
+      setDate(new Date());
+      setLatitude("");
+      setLongitude("");
+      setAddress("");
+    }
+  }, [visible]);
+
+  // 🔥 Fetch address when lat/lon are updated
+  useEffect(() => {
+    const fetchAddressFromCoords = async () => {
+      if (!latitude || !longitude) return;
+
+      const lat = parseFloat(latitude);
+      const lon = parseFloat(longitude);
+
+      if (isNaN(lat) || isNaN(lon)) return;
+
+      try {
+        const results = await Location.reverseGeocodeAsync({
+          latitude: lat,
+          longitude: lon,
+        });
+
+        if (results.length > 0) {
+          const info = results[0];
+          const formatted = [
+            info.street,
+            info.city,
+            info.region,
+            info.country,
+            info.postalCode,
+          ]
+            .filter(Boolean)
+            .join(", ");
+          setAddress(formatted);
+        }
+      } catch (err) {
+        console.error("Reverse geocode error:", err);
+      }
+    };
+
+    fetchAddressFromCoords();
+  }, [latitude, longitude]);
+
+  return (
+    <Modal isOpen={visible} onClose={onClose} size="lg">
+      <ModalBackdrop />
+      <ModalContent className="pb-4 rounded-3xl">
+        <ModalHeader>
+          <Text className="text-lg text-center font-cereal-medium">
+            Enter Geotag Information
+          </Text>
+        </ModalHeader>
+        <ModalBody>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : undefined}
+          >
+            <View className="gap-2">
+              <Text>Date:</Text>
+              <Pressable
+                className="p-2 border rounded-md"
+                onPress={() => setShowDatePicker(true)}
+              >
+                <Text>{date.toLocaleDateString()}</Text>
+              </Pressable>
+              {showDatePicker && (
+                <DateTimePicker
+                  value={date}
+                  mode="date"
+                  display="default"
+                  onChange={(event, selected) => {
+                    setShowDatePicker(false);
+                    if (selected) setDate(selected);
+                  }}
+                />
+              )}
+
+              <Text>Time:</Text>
+              <Pressable
+                className="p-2 border rounded-md"
+                onPress={() => setShowTimePicker(true)}
+              >
+                <Text>{date.toLocaleTimeString()}</Text>
+              </Pressable>
+              {showTimePicker && (
+                <DateTimePicker
+                  value={date}
+                  mode="time"
+                  display="default"
+                  onChange={(event, selected) => {
+                    setShowTimePicker(false);
+                    if (selected) setDate(selected);
+                  }}
+                />
+              )}
+
+              <Text>Latitude:</Text>
+              <TextInput
+                className="p-2 border rounded-md"
+                keyboardType="numeric"
+                value={latitude}
+                onChangeText={setLatitude}
+              />
+
+              <Text>Longitude:</Text>
+              <TextInput
+                className="p-2 border rounded-md"
+                keyboardType="numeric"
+                value={longitude}
+                onChangeText={setLongitude}
+              />
+
+              <Text>Address (auto-fetched):</Text>
+              <TextInput
+                className="p-2 border rounded-md"
+                value={address}
+                editable={false}
+              />
+            </View>
+
+            <View className="flex-row justify-between mt-4">
+              <Pressable
+                className="px-4 py-2 bg-gray-200 rounded-lg"
+                onPress={onClose}
+              >
+                <Text>Cancel</Text>
+              </Pressable>
+              <Pressable
+                className="px-4 py-2 bg-blue-500 rounded-lg"
+                onPress={() => {
+                  onConfirm({
+                    dateString: date.toLocaleString(),
+                    latitude: parseFloat(latitude),
+                    longitude: parseFloat(longitude),
+                    address,
+                  });
+                }}
+              >
+                <Text className="text-white">Confirm</Text>
+              </Pressable>
+            </View>
+          </KeyboardAvoidingView>
+        </ModalBody>
+      </ModalContent>
+    </Modal>
+  );
+}
+>>>>>>> 9c52db63e2799ef59beae0032901aad58e8110a3
