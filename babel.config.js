@@ -13,11 +13,10 @@ module.exports = function (api) {
           root: ["./"],
           alias: {
             "@": "./",
-            "tailwind.config": "./tailwind.config.js",
           },
         },
       ],
-      "react-native-reanimated/plugin", // MUST be last
+      "react-native-reanimated/plugin",
     ],
   };
 };
