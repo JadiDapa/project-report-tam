@@ -23,4 +23,3 @@ export default function LandingScreen() {
     </SafeAreaView>
   );
 }
-4;

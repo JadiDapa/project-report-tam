@@ -18,7 +18,7 @@ import {
   ActionsheetItem,
   ActionsheetItemText,
 } from "@/components/ui/actionsheet";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { pickImage, takePhoto } from "@/lib/image-options";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateAccount } from "@/lib/network/account";

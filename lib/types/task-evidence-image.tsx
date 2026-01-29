@@ -3,7 +3,11 @@ import { AccountType } from "./account";
 
 export interface CreateTaskEvidenceImageType {
   id?: number;
+  baseImage: string;
   image: string;
+  date: Date;
+  latitude: number;
+  longitude: number;
   description?: string;
   taskEvidenceId: number;
   accountId?: number;

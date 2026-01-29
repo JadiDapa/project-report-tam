@@ -31,12 +31,27 @@ export async function createTaskEvidenceImage(
     type: "image/jpeg",
   } as any);
 
+  formData.append("baseImage", {
+    uri: values.baseImage,
+    name: "evidence.jpg",
+    type: "image/jpeg",
+  } as any);
+
   formData.append("taskEvidenceId", values.taskEvidenceId.toString());
   if (values.accountId) {
     formData.append("accountId", values.accountId.toString());
   }
   if (values.description) {
     formData.append("description", values.description);
+  }
+  if (values.date) {
+    formData.append("date", values.date);
+  }
+  if (values.latitude) {
+    formData.append("latitude", values.latitude);
+  }
+  if (values.longitude) {
+    formData.append("longitude", values.longitude);
   }
 
   const { data } = await axiosInstance.post("/task-evidence-images", formData, {
@@ -53,10 +68,54 @@ export async function updateTaskEvidenceImage(
   id: string,
   values: CreateTaskEvidenceImageType
 ) {
+  const formData = new FormData();
+
+  // 🔥 updated rendered image (REQUIRED)
+  if (values.image) {
+    formData.append("image", {
+      uri: values.image,
+      name: "evidence.jpg",
+      type: "image/jpeg",
+    } as any);
+  }
+
+  // 🔥 base image (OPTIONAL, but recommended)
+  if (values.baseImage) {
+    formData.append("baseImage", {
+      uri: values.baseImage,
+      name: "base.jpg",
+      type: "image/jpeg",
+    } as any);
+  }
+
+  if (values.description) {
+    formData.append("description", values.description);
+  }
+
+  if (values.date) {
+    formData.append("date", values.date);
+  }
+
+  if (values.latitude) {
+    formData.append("latitude", values.latitude);
+  }
+
+  if (values.longitude) {
+    formData.append("longitude", values.longitude);
+  }
+
+  console.log(formData);
+
   const { data } = await axiosInstance.put(
     `/task-evidence-images/${id}`,
-    values
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
   );
+
   return data.data;
 }
 

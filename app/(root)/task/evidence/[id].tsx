@@ -1,6 +1,5 @@
-import { useAuth } from "@clerk/clerk-expo";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   Pressable,
@@ -9,7 +8,6 @@ import {
   StatusBar,
   View,
   Text,
-  Image,
 } from "react-native";
 import LoadingScreen from "@/components/LoadingScreen";
 import StackScreenHeader from "@/components/StackScreenHeader";
@@ -53,6 +51,11 @@ export default function EvidenceDetail() {
           image: image.image,
           taskEvidenceId: image.taskEvidenceId,
           accountId: image.accountId,
+          baseImage: image.baseImage,
+          date: image.date,
+          latitude: image.latitude,
+          longitude: image.longitude,
+          description: image.description,
         }))
       );
     }
@@ -86,6 +89,8 @@ export default function EvidenceDetail() {
   };
 
   if (!evidence) return <LoadingScreen />;
+
+  console.log(uploadedEvidences);
 
   return (
     <SafeAreaView className="flex-1 bg-primary-50 ">

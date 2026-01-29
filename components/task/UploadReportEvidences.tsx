@@ -28,6 +28,7 @@ import { ReportEvidenceType } from "@/lib/types/report-evidence";
 import * as Location from "expo-location";
 import ViewShot from "react-native-view-shot";
 import * as MediaLibrary from "expo-media-library";
+import { TaskEvidenceImageType } from "@/lib/types/task-evidence-image";
 
 interface UploadedReportEvidencesProps {
   uploadedEvidences: ReportEvidenceType[];
@@ -42,7 +43,8 @@ export default function UploadReportEvidences({
 }: UploadedReportEvidencesProps) {
   const [showModal, setShowModal] = useState(false);
   const [showManualModal, setShowManualModal] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] =
+    useState<TaskEvidenceImageType>(null);
   const [capturedDate, setCapturedDate] = useState<string | null>(null);
   const [isCapturedImage, setIsCapturedImage] = useState(false);
   const viewShotRef = useRef<ViewShot>(null);
@@ -390,7 +392,7 @@ export default function UploadReportEvidences({
         }
         renderItem={({ item: evidence }) => (
           <Pressable
-            onPress={() => setSelectedImage(evidence.image)}
+            onPress={() => setSelectedImage(evidence)}
             onLongPress={() =>
               setUploadedEvidences(
                 uploadedEvidences.filter((e) => e !== evidence)
