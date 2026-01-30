@@ -8,7 +8,6 @@
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
-
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.jadidapa.projectreporttam",
@@ -49,6 +48,9 @@
     "extra": {
       "router": {
         "origin": false
+      },
+      "eas": {
+        "projectId": "7ab64424-73d8-483e-bf48-583ca4d3e4e2"
       }
     },
     "owner": "jadidapa",
