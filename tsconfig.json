@@ -6,7 +6,6 @@
     "module": "Node16",
     "paths": {
       "@/*": ["./*"],
-      "tailwind.config": ["./tailwind.config.js"]
     }
   },
   "include": [

@@ -49,19 +49,11 @@
     "extra": {
       "router": {
         "origin": false
-      },
-      "eas": {
-        "projectId": "7ab64424-73d8-483e-bf48-583ca4d3e4e2"
       }
     },
     "owner": "jadidapa",
     "runtimeVersion": {
       "policy": "appVersion"
-    },
-    "updates": {
-      "url": "https://u.expo.dev/7ab64424-73d8-483e-bf48-583ca4d3e4e2",
-      "fallbackToCacheTimeout": 0,
-      "checkAutomatically": "ON_LOAD"
     }
   }
 }
