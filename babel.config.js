@@ -1,15 +1,10 @@
 module.exports = function (api) {
   api.cache(true);
-  let plugins = [];
-
-  plugins.push("react-native-worklets/plugin");
 
   return {
     presets: [
       "babel-preset-expo",
       "nativewind/babel",
     ],
-
-    plugins,
   };
 };

@@ -5,9 +5,9 @@ export interface CreateTaskEvidenceImageType {
   id?: number;
   baseImage: string;
   image: string;
-  date: Date;
-  latitude: number;
-  longitude: number;
+  date: string;
+  latitude: string;
+  longitude: string;
   description?: string;
   taskEvidenceId: number;
   accountId?: number;

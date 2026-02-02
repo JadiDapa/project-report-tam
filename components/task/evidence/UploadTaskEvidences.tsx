@@ -60,6 +60,7 @@ export default function UploadTaskEvidence({
 
   // --- Camera (auto geotag) ---
   const takePhoto = async () => {
+    setEditingEvidence(null);
     setIsCameraLoading(true);
 
     try {
@@ -103,7 +104,7 @@ export default function UploadTaskEvidence({
 
       if (!result.canceled) {
         setSelectedImage(result.assets[0].uri);
-        setCapturedDate(new Date().toLocaleString());
+        setCapturedDate(new Date().toISOString());
         setCapturedLocation({ ...location, address });
         setIsCapturedImage(true);
       }
@@ -117,6 +118,7 @@ export default function UploadTaskEvidence({
 
   // --- Gallery (auto geotag) ---
   const pickFromGalleryAuto = async () => {
+    setEditingEvidence(null);
     setIsCameraLoading(true);
 
     try {
@@ -161,7 +163,7 @@ export default function UploadTaskEvidence({
         const imageUri = result.assets[0].uri;
 
         setSelectedImage(imageUri);
-        setCapturedDate(new Date().toLocaleString());
+        setCapturedDate(new Date().toISOString());
         setCapturedLocation({ ...location, address });
         setIsCapturedImage(true);
       }
@@ -175,6 +177,7 @@ export default function UploadTaskEvidence({
 
   // --- Gallery (manual geotag) ---
   const pickFromGalleryManual = async () => {
+    setEditingEvidence(null);
     setIsCameraLoading(true);
 
     try {
@@ -209,7 +212,6 @@ export default function UploadTaskEvidence({
         date: capturedDate,
         latitude: capturedLocation!.coords.latitude.toFixed(5),
         longitude: capturedLocation!.coords.longitude.toFixed(5),
-        address: capturedLocation?.address,
       });
     } else {
       onCreateImage({
@@ -233,6 +235,7 @@ export default function UploadTaskEvidence({
     setCapturedDate(null);
     setCapturedLocation(null);
     setIsCapturedImage(false);
+    setEditingEvidence(null);
   };
 
   const downloadImage = async () => {
@@ -371,8 +374,16 @@ export default function UploadTaskEvidence({
           editingEvidence
             ? {
                 date: editingEvidence.date,
-                latitude: editingEvidence.latitude,
-                longitude: editingEvidence.longitude,
+                latitude: parseFloat(editingEvidence.latitude),
+                longitude: parseFloat(editingEvidence.longitude),
+                address: capturedLocation?.address, // editingEvidence doesn't have address in type, try capturedLocation or just undefined
+              }
+            : capturedLocation && capturedDate
+            ? {
+                date: capturedDate,
+                latitude: capturedLocation.coords.latitude,
+                longitude: capturedLocation.coords.longitude,
+                address: capturedLocation.address,
               }
             : undefined
         }

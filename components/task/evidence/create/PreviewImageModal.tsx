@@ -1,5 +1,5 @@
 import { Modal, ModalBackdrop, ModalContent } from "@/components/ui/modal";
-import { CreateTaskEvidenceImageType } from "@/lib/types/task-evidence-image";
+
 import { ArrowBigRightDash, Download } from "lucide-react-native";
 import { Image, Pressable, Text, View } from "react-native";
 import ViewShot from "react-native-view-shot";
@@ -63,7 +63,7 @@ export default function PreviewImageModal({
               >
                 {capturedDate && (
                   <Text style={{ color: "white", fontSize: 12 }}>
-                    Captured: {capturedDate}
+                    Captured: {new Date(capturedDate).toLocaleString()}
                   </Text>
                 )}
                 {capturedLocation && (

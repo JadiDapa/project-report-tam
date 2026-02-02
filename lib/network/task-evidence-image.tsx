@@ -66,7 +66,7 @@ export async function createTaskEvidenceImage(
 // Update a TaskEvidenceImage
 export async function updateTaskEvidenceImage(
   id: string,
-  values: CreateTaskEvidenceImageType
+  values: Partial<CreateTaskEvidenceImageType>
 ) {
   const formData = new FormData();
 
